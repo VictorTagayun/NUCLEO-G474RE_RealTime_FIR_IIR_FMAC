@@ -6,7 +6,6 @@
 #define MySine100_SIZE		100
 #define MySine200_SIZE		200
 #define MySine2000_SIZE		2000
-#define MySine4000_SIZE 	MySine2000_SIZE
 
 uint32_t Sine12bit[] = { 511,  611,  707,  796,  873,  937,  984, 1013,
                             1023, 1013,  984,  937,  873,  796,  707,  611,

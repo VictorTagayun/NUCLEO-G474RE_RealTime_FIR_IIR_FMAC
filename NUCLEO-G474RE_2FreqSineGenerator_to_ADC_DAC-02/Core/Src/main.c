@@ -48,12 +48,10 @@
 
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
-DMA_HandleTypeDef hdma_adc1;
 
 DAC_HandleTypeDef hdac3;
 DAC_HandleTypeDef hdac4;
 DMA_HandleTypeDef hdma_dac3_ch1;
-DMA_HandleTypeDef hdma_dac4_ch1;
 
 HRTIM_HandleTypeDef hhrtim1;
 
@@ -68,7 +66,7 @@ TIM_HandleTypeDef htim6;
 
 uint32_t MySine4000[MySine4000_SIZE];
 uint32_t pass, period;
-uint32_t adc_dac_value;
+uint16_t adc_dac_value;
 
 /* USER CODE END PV */
 
@@ -135,11 +133,11 @@ int main(void)
   /* USER CODE BEGIN 2 */
 
 
-  for (uint16_t cntr = 0; cntr < MySine2000_SIZE; cntr++)
-  {
-	  MySine2000[cntr] += 682;
-	  MySine2000[cntr] += MySine200[cntr % MySine200_SIZE];
-  }
+//  for (uint16_t cntr = 0; cntr < MySine2000_SIZE; cntr++)
+//  {
+//	  MySine2000[cntr] += 682;
+//	  MySine2000[cntr] += MySine200[cntr % MySine200_SIZE];
+//  }
 
   /*##- Enable DAC Channel and associated DMA ##############################*/
   if(HAL_OK != HAL_DAC_Start_DMA(&hdac3, DAC_CHANNEL_1,
@@ -149,9 +147,16 @@ int main(void)
   	Error_Handler();
   }
 
+//  /*##- Enable DAC Channel and associated DMA ##############################*/
+//  if(HAL_OK != HAL_DAC_Start_DMA(&hdac4, DAC_CHANNEL_1,
+//  				   				&adc_dac_value, 1, DAC_ALIGN_12B_R))
+//  {
+//  	/* Start DMA Error */
+//  	Error_Handler();
+//  }
+
   /*##- Enable DAC Channel and associated DMA ##############################*/
-  if(HAL_OK != HAL_DAC_Start_DMA(&hdac4, DAC_CHANNEL_1,
-  				   				&adc_dac_value, 1, DAC_ALIGN_12B_R))
+  if(HAL_OK != HAL_DAC_Start(&hdac4, DAC_CHANNEL_1))
   {
   	/* Start DMA Error */
   	Error_Handler();
@@ -171,21 +176,28 @@ int main(void)
   	Error_Handler();
   }
 
-  /*##- Enable ADC Channel and associated DMA ##############################*/
-  if(HAL_OK != HAL_ADC_Start_DMA(&hadc1, &adc_dac_value, 1))
+//  /*##- Enable ADC Channel and associated DMA ##############################*/
+//  if(HAL_OK != HAL_ADC_Start_DMA(&hadc1, &adc_dac_value, 1))
+//  {
+//  	/* Start DMA Error */
+//  	Error_Handler();
+//  }
+
+  /*##- Enable Injected ADC Channel ##############################*/
+  if(HAL_OK != HAL_ADCEx_InjectedStart_IT(&hadc1))
   {
   	/* Start DMA Error */
   	Error_Handler();
   }
 
-    /*##- Enable TIM peripheral counter ######################################*/
-    if(HAL_OK != HAL_TIM_Base_Start(&htim6))
-    {
-    	Error_Handler();
-    }
+  /*##- Enable TIM peripheral counter ######################################*/
+  if(HAL_OK != HAL_TIM_Base_Start(&htim6))
+  {
+	Error_Handler();
+  }
 
-  HAL_HRTIM_WaveformOutputStart(&hhrtim1, HRTIM_OUTPUT_TA1 | HRTIM_OUTPUT_TE1 );
-  HAL_HRTIM_WaveformCounterStart_IT(&hhrtim1, HRTIM_TIMERID_TIMER_A | HRTIM_TIMERID_TIMER_E);
+  HAL_HRTIM_WaveformOutputStart(&hhrtim1, HRTIM_OUTPUT_TE1 );
+  HAL_HRTIM_WaveformCounterStart_IT(&hhrtim1, HRTIM_TIMERID_TIMER_E);
 
   /* USER CODE END 2 */
 
@@ -193,6 +205,9 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+
+	  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -267,6 +282,7 @@ static void MX_ADC1_Init(void)
 
   ADC_MultiModeTypeDef multimode = {0};
   ADC_ChannelConfTypeDef sConfig = {0};
+  ADC_InjectionConfTypeDef sConfigInjected = {0};
 
   /* USER CODE BEGIN ADC1_Init 1 */
 
@@ -279,14 +295,14 @@ static void MX_ADC1_Init(void)
   hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
   hadc1.Init.GainCompensation = 0;
   hadc1.Init.ScanConvMode = ADC_SCAN_DISABLE;
-  hadc1.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
+  hadc1.Init.EOCSelection = ADC_EOC_SEQ_CONV;
   hadc1.Init.LowPowerAutoWait = DISABLE;
   hadc1.Init.ContinuousConvMode = DISABLE;
   hadc1.Init.NbrOfConversion = 1;
   hadc1.Init.DiscontinuousConvMode = DISABLE;
   hadc1.Init.ExternalTrigConv = ADC_EXTERNALTRIG_HRTIM_TRG1;
   hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_RISING;
-  hadc1.Init.DMAContinuousRequests = ENABLE;
+  hadc1.Init.DMAContinuousRequests = DISABLE;
   hadc1.Init.Overrun = ADC_OVR_DATA_OVERWRITTEN;
   hadc1.Init.OversamplingMode = DISABLE;
   if (HAL_ADC_Init(&hadc1) != HAL_OK)
@@ -309,6 +325,25 @@ static void MX_ADC1_Init(void)
   sConfig.OffsetNumber = ADC_OFFSET_NONE;
   sConfig.Offset = 0;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /** Configure Injected Channel
+  */
+  sConfigInjected.InjectedChannel = ADC_CHANNEL_12;
+  sConfigInjected.InjectedRank = ADC_INJECTED_RANK_1;
+  sConfigInjected.InjectedSamplingTime = ADC_SAMPLETIME_12CYCLES_5;
+  sConfigInjected.InjectedSingleDiff = ADC_SINGLE_ENDED;
+  sConfigInjected.InjectedOffsetNumber = ADC_OFFSET_NONE;
+  sConfigInjected.InjectedOffset = 0;
+  sConfigInjected.InjectedNbrOfConversion = 1;
+  sConfigInjected.InjectedDiscontinuousConvMode = DISABLE;
+  sConfigInjected.AutoInjectedConv = DISABLE;
+  sConfigInjected.QueueInjectedContext = DISABLE;
+  sConfigInjected.ExternalTrigInjecConv = ADC_EXTERNALTRIGINJEC_HRTIM_TRG2;
+  sConfigInjected.ExternalTrigInjecConvEdge = ADC_EXTERNALTRIGINJECCONV_EDGE_RISING;
+  sConfigInjected.InjecOversamplingMode = DISABLE;
+  if (HAL_ADCEx_InjectedConfigChannel(&hadc1, &sConfigInjected) != HAL_OK)
   {
     Error_Handler();
   }
@@ -400,7 +435,7 @@ static void MX_DAC4_Init(void)
   sConfig.DAC_DMADoubleDataMode = DISABLE;
   sConfig.DAC_SignedFormat = DISABLE;
   sConfig.DAC_SampleAndHold = DAC_SAMPLEANDHOLD_DISABLE;
-  sConfig.DAC_Trigger = DAC_TRIGGER_EXT_IT9;
+  sConfig.DAC_Trigger = DAC_TRIGGER_SOFTWARE;
   sConfig.DAC_Trigger2 = DAC_TRIGGER_NONE;
   sConfig.DAC_OutputBuffer = DAC_OUTPUTBUFFER_DISABLE;
   sConfig.DAC_ConnectOnChipPeripheral = DAC_CHIPCONNECT_INTERNAL;
@@ -459,6 +494,15 @@ static void MX_HRTIM1_Init(void)
     Error_Handler();
   }
   if (HAL_HRTIM_ADCPostScalerConfig(&hhrtim1, HRTIM_ADCTRIGGER_1, 0x0) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  pADCTriggerCfg.Trigger = HRTIM_ADCTRIGGEREVENT24_TIMERE_CMP4;
+  if (HAL_HRTIM_ADCTriggerConfig(&hhrtim1, HRTIM_ADCTRIGGER_2, &pADCTriggerCfg) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_HRTIM_ADCPostScalerConfig(&hhrtim1, HRTIM_ADCTRIGGER_2, 0x0) != HAL_OK)
   {
     Error_Handler();
   }
@@ -688,18 +732,11 @@ static void MX_DMA_Init(void)
   /* DMA controller clock enable */
   __HAL_RCC_DMAMUX1_CLK_ENABLE();
   __HAL_RCC_DMA1_CLK_ENABLE();
-  __HAL_RCC_DMA2_CLK_ENABLE();
 
   /* DMA interrupt init */
   /* DMA1_Channel1_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
-  /* DMA1_Channel2_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA1_Channel2_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMA1_Channel2_IRQn);
-  /* DMA2_Channel1_IRQn interrupt configuration */
-  HAL_NVIC_SetPriority(DMA2_Channel1_IRQn, 0, 0);
-  HAL_NVIC_EnableIRQ(DMA2_Channel1_IRQn);
 
 }
 
@@ -757,6 +794,20 @@ PUTCHAR_PROTOTYPE
   HAL_UART_Transmit(&hlpuart1, (uint8_t *)&ch, 1, 0xFFFF);
 
   return ch;
+}
+
+HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
+{
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hadc);
+
+  /* NOTE : This function should not be modified. When the callback is needed,
+            function HAL_ADC_ConvCpltCallback must be implemented in the user file.
+   */
+
+  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+//  HAL_DAC_SetValue(&hadc1, DAC_CHANNEL_1, DAC_ALIGN_12B_R, HAL_ADCEx_InjectedGetValue(&hadc1, ADC_INJECTED_RANK_1));
+
 }
 
 //void HAL_DAC_ConvCpltCallbackCh1(DAC_HandleTypeDef *hdac)
