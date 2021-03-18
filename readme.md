@@ -14,17 +14,168 @@
 	- 
 	- 
 	
-## Step 1  
+## Step 1 Generate 2 freq of sinewaves  
 
 From previous project [DAC by DMA](https://github.com/VictorTagayun/NUCLEO-G474RE_DAC_DMA_LL-HAL_TIM6), it is possible to generate sinewaves of two freqs.
 
+### GPIO  
 
+* GPIOC6/8/11 is used for troubleshooting  
 
-## Step 2  
+### TIM6 as 2MHz to trigger DAC3  
 
-Activate ADC and generate DAC output from ADC data
+* Activate TIM6
+* Prescaler = 17-1  
+* ARR = 5-1
+* TRGO Event = Update event
+* setup in main.c 
 
-## Step 3  
+	/*##- Enable TIM peripheral counter ######################################*/
+	if(HAL_OK != HAL_TIM_Base_Start(&htim6))
+	{
+		Error_Handler();
+	}
+
+### DAC3 for 2 Freq generator using DMA  
+
+* Set DAC High Freq. = 160MHz 
+* Trigger TIM6 Out Event
+* DMA Settings
+	* Mode = Circular
+	* Increment Adress = Memory
+	* Data width = Word
+* Do not Disable DMA IT!
+* add #include "waveforms.h"
+* add High freq to become 2 freq in main.c 
+
+	for (uint16_t cntr = 0; cntr < MySine2000_SIZE; cntr++)
+	{
+		MySine2000[cntr] += 682;
+		MySine2000[cntr] += MySine200[cntr % MySine200_SIZE];
+	}
+	
+* setup DAC3 in main.c  
+
+	/*##- Enable DAC Channel and associated DMA ##############################*/
+	if(HAL_OK != HAL_DAC_Start_DMA(&hdac3, DAC_CHANNEL_1,
+				   (uint32_t*)MySine2000, MySine2000_SIZE, DAC_ALIGN_12B_R))
+	{
+		/* Start DMA Error */
+		Error_Handler();
+	}
+
+### OpAmp6  
+
+* Mode = Follower DAC3 output1, input P
+* Power Mode = High Speed
+* Setup OpAmp6 in main.c  
+
+	/*##- Start OPAMP    #####################################################*/
+	/* Enable OPAMP */
+	if(HAL_OK != HAL_OPAMP_Start(&hopamp6))
+	{
+		Error_Handler();
+	}
+
+### check output on PB11 
+
+## Step 2 use HRTIM Master to trigger ADC (and use DAC output to display ADC data for testing if triggered) 
+
+### Master HRTIM  
+
+* Setup Master HRTIM 
+* ADC trigger1 on Master Period  
+* Setup HRTIM Master in main.c 
+
+	if(HAL_OK != HAL_HRTIM_WaveformCounterStart(&hhrtim1, HRTIM_TIMERID_MASTER))
+	{
+		Error_Handler();
+	}
+	
+### ADC DMA to DAC4 (to "temporary" display data) 
+
+* Setup 1 Regular Conversion mode   
+	* External trigger by HRTIM trig 1 event (Master Period)  
+* Add DMA
+	* Mode Circular @ Memory, data width Word
+* ADC_Settings
+	* DMA Continous Request = Enable
+	* Overrun behaviour = overwritten
+* NVIC
+	* Enable DMA global IT with Call handler
+	* Disable ADC1-2 Global IT
+* Add callback for Regular Conversion mode, later will be used for DAC1 output
+
+	HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
+	{
+	  /* Prevent unused argument(s) compilation warning */
+	  UNUSED(hadc);
+
+	  /* NOTE : This function should not be modified. When the callback is needed,
+				function HAL_ADC_ConvCpltCallback must be implemented in the user file.
+	   */
+
+		HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_11);
+		HAL_DAC_SetValue(&hdac4, DAC_CHANNEL_1, DAC_ALIGN_12B_R, adc_data);
+	}
+
+* Enable ADC and DMA in main.c 
+
+	/*##- Enable ADC Channel and associated DMA ##############################*/
+	if(HAL_OK != HAL_ADC_Start_DMA(&hadc1, &adc_data, 1))
+	{
+		/* Start DMA Error */
+		Error_Handler();
+	}
+
+### DAC4 for ADC data display   
+
+* Enable DAC4  
+* Set DAC High Freq. = 160MHz 
+* Do not set any Trigger, DAC will not output with this command _HAL_DAC_SetValue_
+* Enable DAC4 in main.c 
+
+	/*##- Enable DAC Channel ##############################*/
+	if(HAL_OK != HAL_DAC_Start(&hdac4, DAC_CHANNEL_1))
+	{
+		/* Start Error */
+		Error_Handler();
+	}
+	
+### OpAmp4  
+
+* Mode = Follower DAC3 output1, input P
+* Power Mode = High Speed
+* Setup OpAmp4 in main.c  
+
+	/*##- Start OPAMP    #####################################################*/
+	/* Enable OPAMP */
+	if(HAL_OK != HAL_OPAMP_Start(&hopamp4))
+	{
+		Error_Handler();
+	}
+	
+### check output on PB11 
+
+## Step 3 Feed ADC data to FMAC for FIR
 
 Insert FMAC in between ADC and DAC output so we can apply FIR filter
 
+FMAC init process flow
+
+HAL_FMAC_FilterConfig, wait until finished
+HAL_FMAC_FilterPreload, wait until finished
+HAL_FMAC_GetState, check the current state of the peripheral
+HAL_FMAC_FilterStart, Output data is also passed here
+and
+HAL_FMAC_AppendFilterData, 
+	if from ADC by DMA not needed
+	need to call by callback HAL_FMAC_OutputDataReadyCallback
+		and get data HAL_FMAC_ConfigFilterOutputBuffer to get data
+HAL_FMAC_PollFilterData, before add/append new data
+HAL_FMAC_AppendFilterData
+
+Call backs when already running,if from ADC by DMA not needed
+
+HAL_FMAC_GetDataCallback >> HAL_FMAC_AppendFilterData
+HAL_FMAC_OutputDataReadyCallback >> HAL_FMAC_ConfigFilterOutputBuffer
