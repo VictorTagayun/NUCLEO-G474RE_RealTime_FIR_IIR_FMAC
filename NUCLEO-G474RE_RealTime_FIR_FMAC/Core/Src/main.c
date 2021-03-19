@@ -58,8 +58,6 @@ FMAC_HandleTypeDef hfmac;
 
 HRTIM_HandleTypeDef hhrtim1;
 
-UART_HandleTypeDef hlpuart1;
-
 OPAMP_HandleTypeDef hopamp4;
 OPAMP_HandleTypeDef hopamp6;
 
@@ -86,7 +84,6 @@ uint16_t ExpectedCalculatedOutputSize = (uint16_t) 1;
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
-static void MX_LPUART1_UART_Init(void);
 static void MX_DAC3_Init(void);
 static void MX_TIM6_Init(void);
 static void MX_OPAMP6_Init(void);
@@ -135,7 +132,6 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_DMA_Init();
-  MX_LPUART1_UART_Init();
   MX_DAC3_Init();
   MX_TIM6_Init();
   MX_OPAMP6_Init();
@@ -191,7 +187,7 @@ int main(void)
 //		Error_Handler();
 //	}
 
-
+	VT_FMAC_init();
 
 	/* Point to ADC source to FMAC Wdata */
 	Fmac_Wdata = (uint32_t *) FMAC_WDATA;
@@ -272,8 +268,7 @@ void SystemClock_Config(void)
   }
   /** Initializes the peripherals clocks
   */
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_LPUART1|RCC_PERIPHCLK_ADC12;
-  PeriphClkInit.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_PCLK1;
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC12;
   PeriphClkInit.Adc12ClockSelection = RCC_ADC12CLKSOURCE_SYSCLK;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
@@ -541,53 +536,6 @@ static void MX_HRTIM1_Init(void)
 }
 
 /**
-  * @brief LPUART1 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_LPUART1_UART_Init(void)
-{
-
-  /* USER CODE BEGIN LPUART1_Init 0 */
-
-  /* USER CODE END LPUART1_Init 0 */
-
-  /* USER CODE BEGIN LPUART1_Init 1 */
-
-  /* USER CODE END LPUART1_Init 1 */
-  hlpuart1.Instance = LPUART1;
-  hlpuart1.Init.BaudRate = 115200;
-  hlpuart1.Init.WordLength = UART_WORDLENGTH_8B;
-  hlpuart1.Init.StopBits = UART_STOPBITS_1;
-  hlpuart1.Init.Parity = UART_PARITY_NONE;
-  hlpuart1.Init.Mode = UART_MODE_TX_RX;
-  hlpuart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  hlpuart1.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
-  hlpuart1.Init.ClockPrescaler = UART_PRESCALER_DIV1;
-  hlpuart1.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-  if (HAL_UART_Init(&hlpuart1) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  if (HAL_UARTEx_SetTxFifoThreshold(&hlpuart1, UART_TXFIFO_THRESHOLD_1_8) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  if (HAL_UARTEx_SetRxFifoThreshold(&hlpuart1, UART_RXFIFO_THRESHOLD_1_8) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  if (HAL_UARTEx_DisableFifoMode(&hlpuart1) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN LPUART1_Init 2 */
-
-  /* USER CODE END LPUART1_Init 2 */
-
-}
-
-/**
   * @brief OPAMP4 Initialization Function
   * @param None
   * @retval None
@@ -767,9 +715,14 @@ HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 			function HAL_ADC_ConvCpltCallback must be implemented in the user file.
    */
 
+	HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_11);
+//	adc_data = HAL_ADC_GetValue(hadc);
+//	HAL_DAC_SetValue(&hdac4, DAC_CHANNEL_1, DAC_ALIGN_12B_R, adc_data);
+}
+
+void HAL_FMAC_OutputDataReadyCallback(FMAC_HandleTypeDef *hfmac)
+{
 	HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_8);
-	adc_data = HAL_ADC_GetValue(hadc);
-	HAL_DAC_SetValue(&hdac4, DAC_CHANNEL_1, DAC_ALIGN_12B_R, adc_data);
 }
 
 void VT_FMAC_init(void)

@@ -168,6 +168,7 @@ Insert FMAC in between ADC and DAC output so we can apply FIR filter
 
 * Enable FMAC 
 * Enable IT
+	* Disable HAL Callhandler, HAL_FMAC_OutputDataReadyCallback wil not function anymore
 * include fmac.h
 * add VT_FMAC_init(void) 
 
