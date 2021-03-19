@@ -24,6 +24,7 @@
 /* USER CODE BEGIN Includes */
 
 #include "waveforms.h"
+#include "fmac.h"
 
 /* USER CODE END Includes */
 
@@ -34,6 +35,10 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+
+/* FMAC WDATA register address (for DMA transfer) */
+#define FMAC_WDATA (0x40021418)
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -49,6 +54,8 @@ DAC_HandleTypeDef hdac3;
 DAC_HandleTypeDef hdac4;
 DMA_HandleTypeDef hdma_dac3_ch1;
 
+FMAC_HandleTypeDef hfmac;
+
 HRTIM_HandleTypeDef hhrtim1;
 
 UART_HandleTypeDef hlpuart1;
@@ -61,6 +68,17 @@ TIM_HandleTypeDef htim6;
 /* USER CODE BEGIN PV */
 
 uint32_t adc_data; // this is temporary
+uint32_t *Fmac_Wdata;
+int16_t Fmac_output;
+
+FMAC_FilterConfigTypeDef sFmacConfig;
+
+/* Array of filter coefficients B (feed-forward taps) in Q1.15 format */
+static int16_t aFilterCoeffB[] =
+{
+    2212,  8848, 13272,  8848,  2212
+};
+uint16_t ExpectedCalculatedOutputSize = (uint16_t) 1;
 
 /* USER CODE END PV */
 
@@ -76,7 +94,10 @@ static void MX_ADC1_Init(void);
 static void MX_HRTIM1_Init(void);
 static void MX_DAC4_Init(void);
 static void MX_OPAMP4_Init(void);
+static void MX_FMAC_Init(void);
 /* USER CODE BEGIN PFP */
+
+void VT_FMAC_init(void);
 
 /* USER CODE END PFP */
 
@@ -122,6 +143,7 @@ int main(void)
   MX_HRTIM1_Init();
   MX_DAC4_Init();
   MX_OPAMP4_Init();
+  MX_FMAC_Init();
   /* USER CODE BEGIN 2 */
 
 	for (uint16_t cntr = 0; cntr < MySine2000_SIZE; cntr++)
@@ -159,19 +181,28 @@ int main(void)
 		Error_Handler();
 	}
 
+	/* Perform an ADC automatic self-calibration and enable ADC */
+	HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
+
+//	/*##- Enable ADC Channel and associated DMA ##############################*/
+//	if(HAL_OK != HAL_ADC_Start_DMA(&hadc1, &adc_data, 1))
+//	{
+//		/* Start DMA Error */
+//		Error_Handler();
+//	}
+
+
+
+	/* Point to ADC source to FMAC Wdata */
+	Fmac_Wdata = (uint32_t *) FMAC_WDATA;
+
 	/*##- Enable ADC Channel and associated DMA ##############################*/
-	if(HAL_OK != HAL_ADC_Start_DMA(&hadc1, &adc_data, 1))
+	if(HAL_OK != HAL_ADC_Start_DMA(&hadc1, Fmac_Wdata, 1))
 	{
 		/* Start DMA Error */
 		Error_Handler();
 	}
 
-//	/*##- Enable ADC Channel and associated IT ##############################*/
-//	if(HAL_OK != HAL_ADC_Start_IT(&hadc1))
-//	{
-//		/* Start DMA Error */
-//		Error_Handler();
-//	}
 
 	/*##- Enable TIM peripheral counter ######################################*/
 	if(HAL_OK != HAL_TIM_Base_Start(&htim6))
@@ -402,6 +433,32 @@ static void MX_DAC4_Init(void)
   /* USER CODE BEGIN DAC4_Init 2 */
 
   /* USER CODE END DAC4_Init 2 */
+
+}
+
+/**
+  * @brief FMAC Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_FMAC_Init(void)
+{
+
+  /* USER CODE BEGIN FMAC_Init 0 */
+
+  /* USER CODE END FMAC_Init 0 */
+
+  /* USER CODE BEGIN FMAC_Init 1 */
+
+  /* USER CODE END FMAC_Init 1 */
+  hfmac.Instance = FMAC;
+  if (HAL_FMAC_Init(&hfmac) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN FMAC_Init 2 */
+
+  /* USER CODE END FMAC_Init 2 */
 
 }
 
@@ -711,10 +768,54 @@ HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
    */
 
 	HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_8);
-//	HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+	adc_data = HAL_ADC_GetValue(hadc);
 	HAL_DAC_SetValue(&hdac4, DAC_CHANNEL_1, DAC_ALIGN_12B_R, adc_data);
 }
 
+void VT_FMAC_init(void)
+{
+	  /*## Configure the FMAC peripheral ###########################################*/
+	  sFmacConfig.InputBaseAddress  = INPUT_BUFFER_BASE; 	// COEFF_VECTOR_B_SIZE = COEFFICIENT_BUFFER_SIZE = 5
+	  sFmacConfig.InputBufferSize   = INPUT_BUFFER_SIZE; 	// COEFF_VECTOR_B_SIZE (5) + MEMORY_PARAMETER_D1 (1)
+	  sFmacConfig.InputThreshold    = INPUT_THRESHOLD;  	// FMAC_THRESHOLD_1 = 0x00000000U
+	  sFmacConfig.CoeffBaseAddress  = COEFFICIENT_BUFFER_BASE; // = 0
+	  sFmacConfig.CoeffBufferSize   = COEFFICIENT_BUFFER_SIZE; // = 5
+	  sFmacConfig.OutputBaseAddress = OUTPUT_BUFFER_BASE;	// COEFFICIENT_BUFFER_SIZE + INPUT_BUFFER_SIZE
+	  sFmacConfig.OutputBufferSize  = OUTPUT_BUFFER_SIZE;	// MEMORY_PARAMETER_D2 = 2
+	  sFmacConfig.OutputThreshold   = OUTPUT_THRESHOLD; 	//
+	  sFmacConfig.pCoeffA           = NULL;					// no A coeffs
+	  sFmacConfig.CoeffASize        = 0;					// no A coeffs
+	  sFmacConfig.pCoeffB           = aFilterCoeffB;		//
+	  sFmacConfig.CoeffBSize        = COEFF_VECTOR_B_SIZE;	// 5
+	  sFmacConfig.Filter            = FMAC_FUNC_CONVO_FIR;  //
+	  sFmacConfig.InputAccess       = FMAC_BUFFER_ACCESS_NONE; /*!< Buffer handled by an external IP (ADC for instance) */
+	  sFmacConfig.OutputAccess      = FMAC_BUFFER_ACCESS_IT;// /*!< Buffer accessed through interruptions */
+	  sFmacConfig.Clip              = FMAC_CLIP_ENABLED;	//
+	  sFmacConfig.P                 = COEFF_VECTOR_B_SIZE;	// 5
+	  sFmacConfig.Q                 = FILTER_PARAM_Q_NOT_USED; // 0
+	  sFmacConfig.R                 = GAIN;					//
+
+	  if (HAL_FMAC_FilterConfig(&hfmac, &sFmacConfig) != HAL_OK)
+	  {
+	    /* Configuration Error */
+	    Error_Handler();
+	  }
+
+	  /*## Preload the input and output buffers ##################################*/
+	  if (HAL_FMAC_FilterPreload(&hfmac, NULL, INPUT_BUFFER_SIZE, NULL, 0) != HAL_OK)
+	  {
+	    /* Configuration Error */
+	    Error_Handler();
+	  }
+
+	  /*## Start calculation of FIR filter in polling/IT mode ####################*/
+	  if (HAL_FMAC_FilterStart(&hfmac,&Fmac_output,&ExpectedCalculatedOutputSize) != HAL_OK)
+	  {
+	    /* Processing Error */
+	    Error_Handler();
+	  }
+
+}
 /* USER CODE END 4 */
 
 /**

@@ -116,17 +116,22 @@ From previous project [DAC by DMA](https://github.com/VictorTagayun/NUCLEO-G474R
 	   */
 
 		HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_11);
+		adc_data = HAL_ADC_GetValue(hadc);
 		HAL_DAC_SetValue(&hdac4, DAC_CHANNEL_1, DAC_ALIGN_12B_R, adc_data);
 	}
 
-* Enable ADC and DMA in main.c 
+* Calibrate then enable ADC with DMA in main.c 
 
+	/* Perform an ADC automatic self-calibration and enable ADC */
+	HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
+	
 	/*##- Enable ADC Channel and associated DMA ##############################*/
 	if(HAL_OK != HAL_ADC_Start_DMA(&hadc1, &adc_data, 1))
 	{
 		/* Start DMA Error */
 		Error_Handler();
 	}
+
 
 ### DAC4 for ADC data display   
 
@@ -161,6 +166,52 @@ From previous project [DAC by DMA](https://github.com/VictorTagayun/NUCLEO-G474R
 
 Insert FMAC in between ADC and DAC output so we can apply FIR filter
 
+* Enable FMAC 
+* Enable IT
+* include fmac.h
+* add VT_FMAC_init(void) 
+
+	/*## Configure the FMAC peripheral ###########################################*/
+	sFmacConfig.InputBaseAddress  = INPUT_BUFFER_BASE; 	// COEFF_VECTOR_B_SIZE = COEFFICIENT_BUFFER_SIZE = 5
+	sFmacConfig.InputBufferSize   = INPUT_BUFFER_SIZE; 	// COEFF_VECTOR_B_SIZE (5) + MEMORY_PARAMETER_D1 (1)
+	sFmacConfig.InputThreshold    = INPUT_THRESHOLD;  	// FMAC_THRESHOLD_1 = 0x00000000U
+	sFmacConfig.CoeffBaseAddress  = COEFFICIENT_BUFFER_BASE; // = 0
+	sFmacConfig.CoeffBufferSize   = COEFFICIENT_BUFFER_SIZE; // = 5
+	sFmacConfig.OutputBaseAddress = OUTPUT_BUFFER_BASE;	// COEFFICIENT_BUFFER_SIZE + INPUT_BUFFER_SIZE
+	sFmacConfig.OutputBufferSize  = OUTPUT_BUFFER_SIZE;	// MEMORY_PARAMETER_D2 = 2
+	sFmacConfig.OutputThreshold   = OUTPUT_THRESHOLD; 	//
+	sFmacConfig.pCoeffA           = NULL;					// no A coeffs
+	sFmacConfig.CoeffASize        = 0;					// no A coeffs
+	sFmacConfig.pCoeffB           = aFilterCoeffB;		//
+	sFmacConfig.CoeffBSize        = COEFF_VECTOR_B_SIZE;	// 5
+	sFmacConfig.Filter            = FMAC_FUNC_CONVO_FIR;  //
+	sFmacConfig.InputAccess       = FMAC_BUFFER_ACCESS_NONE; /*!< Buffer handled by an external IP (ADC for instance) */
+	sFmacConfig.OutputAccess      = FMAC_BUFFER_ACCESS_IT;// /*!< Buffer accessed through interruptions */
+	sFmacConfig.Clip              = FMAC_CLIP_ENABLED;	//
+	sFmacConfig.P                 = COEFF_VECTOR_B_SIZE;	// 5
+	sFmacConfig.Q                 = FILTER_PARAM_Q_NOT_USED; // 0
+	sFmacConfig.R                 = GAIN;					//
+
+	if (HAL_FMAC_FilterConfig(&hfmac, &sFmacConfig) != HAL_OK)
+	{
+		/* Configuration Error */
+		Error_Handler();
+	}
+
+	/*## Preload the input and output buffers ##################################*/
+	if (HAL_FMAC_FilterPreload(&hfmac, NULL, INPUT_BUFFER_SIZE, NULL, 0) != HAL_OK)
+	{
+		/* Configuration Error */
+		Error_Handler();
+	}
+
+	/*## Start calculation of FIR filter in polling/IT mode ####################*/
+	if (HAL_FMAC_FilterStart(&hfmac,&Fmac_output,&ExpectedCalculatedOutputSize) != HAL_OK)
+	{
+		/* Processing Error */
+		Error_Handler();
+	}
+	  
 FMAC init process flow
 
 HAL_FMAC_FilterConfig, wait until finished
