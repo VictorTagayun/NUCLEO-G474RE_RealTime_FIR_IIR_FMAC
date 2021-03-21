@@ -92,7 +92,7 @@ From previous project [DAC by DMA](https://github.com/VictorTagayun/NUCLEO-G474R
 		Error_Handler();
 	}
 	
-### ADC DMA to DAC4 (to "temporary" display data) 
+### ADC DMA to DAC4 to display ADC data  
 
 * Setup 1 Regular Conversion mode   
 	* External trigger by HRTIM trig 1 event (Master Period)  
@@ -132,7 +132,6 @@ From previous project [DAC by DMA](https://github.com/VictorTagayun/NUCLEO-G474R
 		Error_Handler();
 	}
 
-
 ### DAC4 for ADC data display   
 
 * Enable DAC4  
@@ -166,9 +165,10 @@ From previous project [DAC by DMA](https://github.com/VictorTagayun/NUCLEO-G474R
 
 Insert FMAC in between ADC and DAC output so we can apply FIR filter
 
+### FMAC for FIR filter     
+
 * Enable FMAC 
 * Enable IT
-	* Disable HAL Callhandler, HAL_FMAC_OutputDataReadyCallback wil not function anymore
 * include fmac.h
 * add VT_FMAC_init(void) 
 
@@ -213,6 +213,21 @@ Insert FMAC in between ADC and DAC output so we can apply FIR filter
 		Error_Handler();
 	}
 	  
+### DAC1 for FMAC data display   
+
+* Enable DAC1  
+* Enable Output Buffer
+* Set DAC High Freq. = 160MHz 
+* Do not set any Trigger, DAC will not output with this command _HAL_DAC_SetValue_
+* Enable DAC1 in main.c 
+
+	/*##- Enable DAC Channel ##############################*/
+	if(HAL_OK != HAL_DAC_Start(&hdac1, DAC_CHANNEL_1))
+	{
+		/* Start Error */
+		Error_Handler();
+	}
+	
 FMAC init process flow
 
 HAL_FMAC_FilterConfig, wait until finished

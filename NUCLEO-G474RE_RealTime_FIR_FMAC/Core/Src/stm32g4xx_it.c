@@ -61,7 +61,7 @@ extern DMA_HandleTypeDef hdma_dac3_ch1;
 extern FMAC_HandleTypeDef hfmac;
 /* USER CODE BEGIN EV */
 
-extern DAC_HandleTypeDef hdac4;
+extern DAC_HandleTypeDef hdac1;
 
 /* USER CODE END EV */
 
@@ -224,6 +224,8 @@ void DMA1_Channel2_IRQHandler(void)
 {
   /* USER CODE BEGIN DMA1_Channel2_IRQn 0 */
 
+	HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_11);
+
   /* USER CODE END DMA1_Channel2_IRQn 0 */
   HAL_DMA_IRQHandler(&hdma_adc1);
   /* USER CODE BEGIN DMA1_Channel2_IRQn 1 */
@@ -260,7 +262,7 @@ void FMAC_IRQHandler(void)
   uint32_t tmp;
   tmp = READ_REG(hfmac.Instance->RDATA);
   tmp = (tmp > 0x00007FFF ? 0 : tmp);
-  HAL_DAC_SetValue(&hdac4, DAC_CHANNEL_1, DAC_ALIGN_12B_R, tmp);
+  HAL_DAC_SetValue(&hdac1, DAC_CHANNEL_1, DAC_ALIGN_12B_R, tmp);
 
   /* USER CODE END FMAC_IRQn 1 */
 }

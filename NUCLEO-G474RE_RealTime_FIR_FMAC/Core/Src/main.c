@@ -25,6 +25,7 @@
 
 #include "waveforms.h"
 #include "fmac.h"
+#include <stdio.h>
 
 /* USER CODE END Includes */
 
@@ -50,6 +51,7 @@
 ADC_HandleTypeDef hadc1;
 DMA_HandleTypeDef hdma_adc1;
 
+DAC_HandleTypeDef hdac1;
 DAC_HandleTypeDef hdac3;
 DAC_HandleTypeDef hdac4;
 DMA_HandleTypeDef hdma_dac3_ch1;
@@ -58,6 +60,8 @@ FMAC_HandleTypeDef hfmac;
 
 HRTIM_HandleTypeDef hhrtim1;
 
+UART_HandleTypeDef hlpuart1;
+
 OPAMP_HandleTypeDef hopamp4;
 OPAMP_HandleTypeDef hopamp6;
 
@@ -65,18 +69,25 @@ TIM_HandleTypeDef htim6;
 
 /* USER CODE BEGIN PV */
 
-uint32_t adc_data; // this is temporary
+#define adc_data_array_size 600
+uint32_t adc_data, adc_data_cntr, adc_data_array[adc_data_array_size];
 uint32_t *Fmac_Wdata;
 int16_t Fmac_output;
 
 FMAC_FilterConfigTypeDef sFmacConfig;
 
 /* Array of filter coefficients B (feed-forward taps) in Q1.15 format */
+//static int16_t aFilterCoeffB[] =
+//{
+//    2212,  8848, 13272,  8848,  2212
+//};
 static int16_t aFilterCoeffB[] =
 {
-    2212,  8848, 13272,  8848,  2212
+    70,  0, 127,  0,  70
 };
 uint16_t ExpectedCalculatedOutputSize = (uint16_t) 1;
+
+
 
 /* USER CODE END PV */
 
@@ -92,9 +103,12 @@ static void MX_HRTIM1_Init(void);
 static void MX_DAC4_Init(void);
 static void MX_OPAMP4_Init(void);
 static void MX_FMAC_Init(void);
+static void MX_DAC1_Init(void);
+static void MX_LPUART1_UART_Init(void);
 /* USER CODE BEGIN PFP */
 
 void VT_FMAC_init(void);
+#define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
 
 /* USER CODE END PFP */
 
@@ -140,6 +154,8 @@ int main(void)
   MX_DAC4_Init();
   MX_OPAMP4_Init();
   MX_FMAC_Init();
+  MX_DAC1_Init();
+  MX_LPUART1_UART_Init();
   /* USER CODE BEGIN 2 */
 
 	for (uint16_t cntr = 0; cntr < MySine2000_SIZE; cntr++)
@@ -199,6 +215,12 @@ int main(void)
 		Error_Handler();
 	}
 
+	/*##- Enable DAC Channel ##############################*/
+	if(HAL_OK != HAL_DAC_Start(&hdac1, DAC_CHANNEL_1))
+	{
+		/* Start Error */
+		Error_Handler();
+	}
 
 	/*##- Enable TIM peripheral counter ######################################*/
 	if(HAL_OK != HAL_TIM_Base_Start(&htim6))
@@ -268,7 +290,8 @@ void SystemClock_Config(void)
   }
   /** Initializes the peripherals clocks
   */
-  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC12;
+  PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_LPUART1|RCC_PERIPHCLK_ADC12;
+  PeriphClkInit.Lpuart1ClockSelection = RCC_LPUART1CLKSOURCE_PCLK1;
   PeriphClkInit.Adc12ClockSelection = RCC_ADC12CLKSOURCE_SYSCLK;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
@@ -338,6 +361,51 @@ static void MX_ADC1_Init(void)
   /* USER CODE BEGIN ADC1_Init 2 */
 
   /* USER CODE END ADC1_Init 2 */
+
+}
+
+/**
+  * @brief DAC1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_DAC1_Init(void)
+{
+
+  /* USER CODE BEGIN DAC1_Init 0 */
+
+  /* USER CODE END DAC1_Init 0 */
+
+  DAC_ChannelConfTypeDef sConfig = {0};
+
+  /* USER CODE BEGIN DAC1_Init 1 */
+
+  /* USER CODE END DAC1_Init 1 */
+  /** DAC Initialization
+  */
+  hdac1.Instance = DAC1;
+  if (HAL_DAC_Init(&hdac1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /** DAC channel OUT1 config
+  */
+  sConfig.DAC_HighFrequency = DAC_HIGH_FREQUENCY_INTERFACE_MODE_ABOVE_160MHZ;
+  sConfig.DAC_DMADoubleDataMode = DISABLE;
+  sConfig.DAC_SignedFormat = DISABLE;
+  sConfig.DAC_SampleAndHold = DAC_SAMPLEANDHOLD_DISABLE;
+  sConfig.DAC_Trigger = DAC_TRIGGER_NONE;
+  sConfig.DAC_Trigger2 = DAC_TRIGGER_NONE;
+  sConfig.DAC_OutputBuffer = DAC_OUTPUTBUFFER_ENABLE;
+  sConfig.DAC_ConnectOnChipPeripheral = DAC_CHIPCONNECT_EXTERNAL;
+  sConfig.DAC_UserTrimming = DAC_TRIMMING_FACTORY;
+  if (HAL_DAC_ConfigChannel(&hdac1, &sConfig, DAC_CHANNEL_1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN DAC1_Init 2 */
+
+  /* USER CODE END DAC1_Init 2 */
 
 }
 
@@ -536,6 +604,53 @@ static void MX_HRTIM1_Init(void)
 }
 
 /**
+  * @brief LPUART1 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_LPUART1_UART_Init(void)
+{
+
+  /* USER CODE BEGIN LPUART1_Init 0 */
+
+  /* USER CODE END LPUART1_Init 0 */
+
+  /* USER CODE BEGIN LPUART1_Init 1 */
+
+  /* USER CODE END LPUART1_Init 1 */
+  hlpuart1.Instance = LPUART1;
+  hlpuart1.Init.BaudRate = 21250000;
+  hlpuart1.Init.WordLength = UART_WORDLENGTH_8B;
+  hlpuart1.Init.StopBits = UART_STOPBITS_1;
+  hlpuart1.Init.Parity = UART_PARITY_NONE;
+  hlpuart1.Init.Mode = UART_MODE_TX_RX;
+  hlpuart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  hlpuart1.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
+  hlpuart1.Init.ClockPrescaler = UART_PRESCALER_DIV1;
+  hlpuart1.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+  if (HAL_UART_Init(&hlpuart1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_UARTEx_SetTxFifoThreshold(&hlpuart1, UART_TXFIFO_THRESHOLD_1_8) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_UARTEx_SetRxFifoThreshold(&hlpuart1, UART_RXFIFO_THRESHOLD_1_8) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  if (HAL_UARTEx_DisableFifoMode(&hlpuart1) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN LPUART1_Init 2 */
+
+  /* USER CODE END LPUART1_Init 2 */
+
+}
+
+/**
   * @brief OPAMP4 Initialization Function
   * @param None
   * @retval None
@@ -715,9 +830,26 @@ HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 			function HAL_ADC_ConvCpltCallback must be implemented in the user file.
    */
 
-	HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_11);
-//	adc_data = HAL_ADC_GetValue(hadc);
-//	HAL_DAC_SetValue(&hdac4, DAC_CHANNEL_1, DAC_ALIGN_12B_R, adc_data);
+//	HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_11);
+	adc_data = HAL_ADC_GetValue(hadc);
+	HAL_DAC_SetValue(&hdac4, DAC_CHANNEL_1, DAC_ALIGN_12B_R, adc_data);
+//	if (adc_data_cntr < adc_data_array_size)
+//	{
+//		adc_data_array[adc_data_cntr++] = adc_data;
+//		if (adc_data_cntr == adc_data_array_size)
+//		{
+//			if(HAL_OK != HAL_HRTIM_WaveformCounterStop(&hhrtim1, HRTIM_TIMERID_MASTER))
+//			{
+//				Error_Handler();
+//			}
+//
+//			printf("ADC DATA \n");
+//			for (uint16_t Index = 0; Index < adc_data_array_size; Index++)
+//			{
+//				printf("%d %d\n",Index, adc_data_array[Index]);
+//			}
+//		}
+//	}
 }
 
 void HAL_FMAC_OutputDataReadyCallback(FMAC_HandleTypeDef *hfmac)
@@ -769,6 +901,16 @@ void VT_FMAC_init(void)
 	  }
 
 }
+
+PUTCHAR_PROTOTYPE
+{
+  /* Place your implementation of fputc here */
+  /* e.g. write a character to the LPUART1 and Loop until the end of transmission */
+  HAL_UART_Transmit(&hlpuart1, (uint8_t *)&ch, 1, 0xFFFF); // hlpuart1 >> huart1
+
+  return ch;
+}
+
 /* USER CODE END 4 */
 
 /**
