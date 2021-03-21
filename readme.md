@@ -246,3 +246,7 @@ Call backs when already running,if from ADC by DMA not needed
 
 HAL_FMAC_GetDataCallback >> HAL_FMAC_AppendFilterData
 HAL_FMAC_OutputDataReadyCallback >> HAL_FMAC_ConfigFilterOutputBuffer
+
+### Social Media
+
+[LinkedIn](https://www.linkedin.com/posts/victortagayun_stm32-weekendhobbyabrelectronics-funwithelectronics-activity-6779238439905828865-u19j)
