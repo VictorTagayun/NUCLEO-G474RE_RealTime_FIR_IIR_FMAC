@@ -1,4 +1,4 @@
-# FIR processing of ADC data in realtime
+# FIR Filter processing of ADC data in realtime, Low Pass and High Pass Filtering 
 
 ## Target Block diagram  
 
@@ -16,11 +16,13 @@
 	
 ## Step 1 Generate 2 freq of sinewaves  
 
+
 From previous project [DAC by DMA](https://github.com/VictorTagayun/NUCLEO-G474RE_DAC_DMA_LL-HAL_TIM6), it is possible to generate sinewaves of two freqs.
 
 ### GPIO  
 
 * GPIOC6/8/11 is used for troubleshooting  
+
 
 ### TIM6 as 2MHz to trigger DAC3  
 
@@ -36,6 +38,7 @@ From previous project [DAC by DMA](https://github.com/VictorTagayun/NUCLEO-G474R
 		Error_Handler();
 	}
 
+
 ### DAC3 for 2 Freq generator using DMA  
 
 * Set DAC High Freq. = 160MHz 
@@ -48,11 +51,25 @@ From previous project [DAC by DMA](https://github.com/VictorTagayun/NUCLEO-G474R
 * add #include "waveforms.h"
 * add High freq to become 2 freq in main.c 
 
+	MySine2000[cntr];
+	
+	[1kHz signal]()
+
+	MySine2000[cntr] += 682;
+	
+	[Add Offset so that 10k signal can be added and will not go negative]()
+	
+	MySine200[cntr];
+	
+	[10Khz Signal]()
+	
 	for (uint16_t cntr = 0; cntr < MySine2000_SIZE; cntr++)
 	{
 		MySine2000[cntr] += 682;
 		MySine2000[cntr] += MySine200[cntr % MySine200_SIZE];
 	}
+	
+	[Added together]()
 	
 * setup DAC3 in main.c  
 
@@ -63,6 +80,7 @@ From previous project [DAC by DMA](https://github.com/VictorTagayun/NUCLEO-G474R
 		/* Start DMA Error */
 		Error_Handler();
 	}
+
 
 ### OpAmp6  
 
@@ -79,7 +97,9 @@ From previous project [DAC by DMA](https://github.com/VictorTagayun/NUCLEO-G474R
 
 ### check output on PB11 
 
+
 ## Step 2 use HRTIM Master to trigger ADC (and use DAC output to display ADC data for testing if triggered) 
+
 
 ### Master HRTIM  
 
@@ -91,6 +111,7 @@ From previous project [DAC by DMA](https://github.com/VictorTagayun/NUCLEO-G474R
 	{
 		Error_Handler();
 	}
+	
 	
 ### ADC DMA to DAC4 to display ADC data  
 
@@ -132,6 +153,7 @@ From previous project [DAC by DMA](https://github.com/VictorTagayun/NUCLEO-G474R
 		Error_Handler();
 	}
 
+
 ### DAC4 for ADC data display   
 
 * Enable DAC4  
@@ -146,6 +168,7 @@ From previous project [DAC by DMA](https://github.com/VictorTagayun/NUCLEO-G474R
 		Error_Handler();
 	}
 	
+	
 ### OpAmp4  
 
 * Mode = Follower DAC3 output1, input P
@@ -159,11 +182,14 @@ From previous project [DAC by DMA](https://github.com/VictorTagayun/NUCLEO-G474R
 		Error_Handler();
 	}
 	
+	
 ### check output on PB11 
+
 
 ## Step 3 Feed ADC data to FMAC for FIR
 
 Insert FMAC in between ADC and DAC output so we can apply FIR filter
+
 
 ### FMAC for FIR filter     
 
@@ -213,40 +239,97 @@ Insert FMAC in between ADC and DAC output so we can apply FIR filter
 		Error_Handler();
 	}
 	  
+	  
 ### DAC1 for FMAC data display   
 
 * Enable DAC1  
 * Enable Output Buffer
 * Set DAC High Freq. = 160MHz 
 * Do not set any Trigger, DAC will not output with this command _HAL_DAC_SetValue_
-* Enable DAC1 in main.c 
+* Enable DAC1 in main.c  
 
-	/*##- Enable DAC Channel ##############################*/
+	/*##- Enable DAC Channel ##############################*/  
 	if(HAL_OK != HAL_DAC_Start(&hdac1, DAC_CHANNEL_1))
 	{
 		/* Start Error */
 		Error_Handler();
 	}
 	
-FMAC init process flow
+	
+### Test Results, Waveforms and Plot
 
-HAL_FMAC_FilterConfig, wait until finished
-HAL_FMAC_FilterPreload, wait until finished
-HAL_FMAC_GetState, check the current state of the peripheral
-HAL_FMAC_FilterStart, Output data is also passed here
-and
-HAL_FMAC_AppendFilterData, 
-	if from ADC by DMA not needed
-	need to call by callback HAL_FMAC_OutputDataReadyCallback
-		and get data HAL_FMAC_ConfigFilterOutputBuffer to get data
-HAL_FMAC_PollFilterData, before add/append new data
-HAL_FMAC_AppendFilterData
+* 1kHz + 10kHz signal (CH1, Yellow) aquired by ADC and sent to DAC (CH2, Cyan). CH4 is ADC sampling points.
 
-Call backs when already running,if from ADC by DMA not needed
+[ADC signal to DAC]()
+	
+* ADC data printed out by MCU and imported to Excel for plotting
 
-HAL_FMAC_GetDataCallback >> HAL_FMAC_AppendFilterData
-HAL_FMAC_OutputDataReadyCallback >> HAL_FMAC_ConfigFilterOutputBuffer
+[Excel ADC Plot]()
+
+
+* Very Low Pass Filter
+
+[Very Low Pass Filter]()
+
+* Calculated by Excel
+
+[]()
+
+* MCU output to DAC
+
+[]()
+
+* Change gain of 7 in FMAC, that is R = 7, 2^7. Excel Plot.
+
+[]()
+
+* MCU output
+
+[]()
+
+
+* Low pass FILTER_PARAM_Q_NOT_USED
+
+[]()
+
+* Excel Calculations
+
+[]()
+
+* MCU output
+
+[]()
+
+
+* High Pass filter
+
+[]()
+
+* Calculated thru Excel
+
+[]()
+
+* MCU output. Offset is added because MCU DAC cannot generate negative voltages
+
+[]()
+
+	
+### Other References :
+
+[STM32F429I-DISC1_FIR_FFT_wth_Print Project](https://github.com/VictorTagayun/STM32F429I-DISC1_CMSIS_DSP_Tutorial)
+
+[Use of FMAC for FIR Low Pass Filter](https://github.com/VictorTagayun/NUCLEO-G474RE_FMAC_Study_and_Analysis)
+
 
 ### Social Media
 
 [LinkedIn](https://www.linkedin.com/posts/victortagayun_stm32-weekendhobbyabrelectronics-funwithelectronics-activity-6779238439905828865-u19j)
+
+
+*Disclaimer:*
+[Updated Disclaimer](https://github.com/VictorTagayun/GlobalDisclaimer)
+
+*The projects posted here are for my Personal reference, learning and educational purposes only.*
+*The purpose of a certain project may be for testing a module and may be just a part of a whole project.*
+*It should not be used in a production or commercial environment.*
+*Any cause of injury and/or death is the sole responsibility of the user.*
