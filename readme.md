@@ -55,15 +55,15 @@ From previous project [DAC by DMA](https://github.com/VictorTagayun/NUCLEO-G474R
 
 	MySine2000[cntr];
 	
-	[1kHz signal](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/waveforms%26photos/DS1Z_QuickPrint91.jpg)
+	![1kHz signal](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/waveforms%26photos/DS1Z_QuickPrint91.jpg)
 
 	MySine2000[cntr] += 682;
 	
-	[Add Offset so that 10k signal can be added and will not go negative](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/waveforms%26photos/DS1Z_QuickPrint92.jpg)
+	![Add Offset so that 10k signal can be added and will not go negative](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/waveforms%26photos/DS1Z_QuickPrint92.jpg)
 	
 	MySine200[cntr];
 	
-	[10Khz Signal](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/waveforms%26photos/DS1Z_QuickPrint93.jpg)
+	![10Khz Signal](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/waveforms%26photos/DS1Z_QuickPrint93.jpg)
 	
 	for (uint16_t cntr = 0; cntr < MySine2000_SIZE; cntr++)
 	{
@@ -99,7 +99,7 @@ From previous project [DAC by DMA](https://github.com/VictorTagayun/NUCLEO-G474R
 
 ### check output on PB11 
 
-	[Added all together](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/waveforms%26photos/DS1Z_QuickPrint94.jpg)
+	![Added all together](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/waveforms%26photos/DS1Z_QuickPrint94.jpg)
 
 ## Step 2 use HRTIM Master to trigger ADC (and use DAC output to display ADC data for testing if triggered) 
 
@@ -282,58 +282,58 @@ Insert FMAC in between ADC and DAC output so we can apply FIR filter
 
 * 1kHz + 10kHz signal (CH1, Yellow) aquired by ADC and sent to DAC (CH2, Cyan). CH4 is ADC sampling points.
 
-[ADC signal to DAC](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/waveforms%26photos/DS1Z_QuickPrint138.jpg)
+![ADC signal to DAC](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/waveforms%26photos/DS1Z_QuickPrint138.jpg)
 	
 * ADC data printed out by MCU and imported to Excel for plotting
 
-[Excel ADC Plot]()
+![Excel ADC Plot]()
 
 
 * Very Low Pass Filter
 
-[Very Low Pass Filter]()
+![Very Low Pass Filter]()
 
 * Calculated by Excel
 
-[]()
+![]()
 
 * MCU output to DAC
 
-[]()
+![]()
 
 * Change gain of 7 in FMAC, that is R = 7, 2^7. Excel Plot.
 
-[]()
+![]()
 
 * MCU output
 
-[]()
+![]()
 
 
 * Low Pass Filter
 
-[]()
+![]()
 
 * Excel Calculations
 
-[]()
+![]()
 
 * MCU output
 
-[]()
+![]()
 
 
 * High Pass filter
 
-[]()
+![]()
 
 * Calculated thru Excel
 
-[]()
+![]()
 
 * MCU output. Offset is added because MCU DAC cannot generate negative voltages
 
-[]()
+![]()
 
 	
 ### Other References :
