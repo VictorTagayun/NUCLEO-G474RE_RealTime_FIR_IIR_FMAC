@@ -81,9 +81,17 @@ FMAC_FilterConfigTypeDef sFmacConfig;
 //{
 //    2212,  8848, 13272,  8848,  2212
 //};
+//static int16_t aFilterCoeffB[] =
+//{
+//    70,  0, 127,  0,  70
+//};
+//static int16_t aFilterCoeffB[] =
+//{
+//		5987,  6832, 7129,  6832,  5987
+//};
 static int16_t aFilterCoeffB[] =
 {
-    70,  0, 127,  0,  70
+		-2570,  -8318, 21777,  -8318,  -2570
 };
 uint16_t ExpectedCalculatedOutputSize = (uint16_t) 1;
 

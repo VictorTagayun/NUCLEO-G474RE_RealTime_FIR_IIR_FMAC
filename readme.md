@@ -199,7 +199,7 @@ Insert FMAC in between ADC and DAC output so we can apply FIR filter
 * Enable FMAC 
 * Enable IT
 * include fmac.h
-* add VT_FMAC_init(void) 
+* add VT_FMAC_init(void)  
 
 	/*## Configure the FMAC peripheral ###########################################*/
 	sFmacConfig.InputBaseAddress  = INPUT_BUFFER_BASE; 	// COEFF_VECTOR_B_SIZE = COEFFICIENT_BUFFER_SIZE = 5
