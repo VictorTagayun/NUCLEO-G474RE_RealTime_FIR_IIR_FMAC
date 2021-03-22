@@ -10,9 +10,11 @@
 
 ## Project files  
 
-	- 
-	- 
-	- 
+	- NUCLEO-G474RE_2FreqSineGenerator
+	- NUCLEO-G474RE_2FreqSineGenerator_to_ADC_DAC
+	- NUCLEO-G474RE_2FreqSineGenerator_to_ADC_DAC-02
+	- NUCLEO-G474RE_RealTime_FIR_FMAC
+	
 	
 ## Step 1 Generate 2 freq of sinewaves  
 
@@ -53,15 +55,15 @@ From previous project [DAC by DMA](https://github.com/VictorTagayun/NUCLEO-G474R
 
 	MySine2000[cntr];
 	
-	[1kHz signal]()
+	[1kHz signal](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/waveforms%26photos/DS1Z_QuickPrint91.jpg)
 
 	MySine2000[cntr] += 682;
 	
-	[Add Offset so that 10k signal can be added and will not go negative]()
+	[Add Offset so that 10k signal can be added and will not go negative](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/waveforms%26photos/DS1Z_QuickPrint92.jpg)
 	
 	MySine200[cntr];
 	
-	[10Khz Signal]()
+	[10Khz Signal](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/waveforms%26photos/DS1Z_QuickPrint93.jpg)
 	
 	for (uint16_t cntr = 0; cntr < MySine2000_SIZE; cntr++)
 	{
@@ -69,7 +71,7 @@ From previous project [DAC by DMA](https://github.com/VictorTagayun/NUCLEO-G474R
 		MySine2000[cntr] += MySine200[cntr % MySine200_SIZE];
 	}
 	
-	[Added together]()
+	[Added all together](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/waveforms%26photos/DS1Z_QuickPrint94.jpg)
 	
 * setup DAC3 in main.c  
 
@@ -97,6 +99,7 @@ From previous project [DAC by DMA](https://github.com/VictorTagayun/NUCLEO-G474R
 
 ### check output on PB11 
 
+	[Added all together](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/waveforms%26photos/DS1Z_QuickPrint94.jpg)
 
 ## Step 2 use HRTIM Master to trigger ADC (and use DAC output to display ADC data for testing if triggered) 
 
@@ -239,7 +242,26 @@ Insert FMAC in between ADC and DAC output so we can apply FIR filter
 		Error_Handler();
 	}
 	  
-	  
+* Edit FMAC IT 
+
+	void FMAC_IRQHandler(void)
+	{
+		/* USER CODE BEGIN FMAC_IRQn 0 */
+
+		/* USER CODE END FMAC_IRQn 0 */
+		/* USER CODE BEGIN FMAC_IRQn 1 */
+
+		HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_8);
+
+		uint32_t tmp;
+		tmp = READ_REG(hfmac.Instance->RDATA);
+		//  tmp = (tmp > 0x00007FFF ? 0 : tmp); // no need to clamp negative values
+		HAL_DAC_SetValue(&hdac1, DAC_CHANNEL_1, DAC_ALIGN_12B_R, tmp + 1000);
+
+		/* USER CODE END FMAC_IRQn 1 */
+	}
+	
+	
 ### DAC1 for FMAC data display   
 
 * Enable DAC1  
@@ -260,7 +282,7 @@ Insert FMAC in between ADC and DAC output so we can apply FIR filter
 
 * 1kHz + 10kHz signal (CH1, Yellow) aquired by ADC and sent to DAC (CH2, Cyan). CH4 is ADC sampling points.
 
-[ADC signal to DAC]()
+[ADC signal to DAC](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/waveforms%26photos/DS1Z_QuickPrint138.jpg)
 	
 * ADC data printed out by MCU and imported to Excel for plotting
 
@@ -288,7 +310,7 @@ Insert FMAC in between ADC and DAC output so we can apply FIR filter
 []()
 
 
-* Low pass FILTER_PARAM_Q_NOT_USED
+* Low Pass Filter
 
 []()
 
