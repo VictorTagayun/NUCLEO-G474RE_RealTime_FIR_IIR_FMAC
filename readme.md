@@ -109,7 +109,7 @@ From previous project [DAC by DMA](https://github.com/VictorTagayun/NUCLEO-G474R
 
 ### check output on PB11
 
-	![Added all together](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/waveforms%26photos/DS1Z_QuickPrint94.jpg)
+![Added all together](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/waveforms%26photos/DS1Z_QuickPrint94.jpg)
 
 	
 ## Step 2 use HRTIM Master to trigger ADC (and use DAC output to display ADC data for testing if triggered) 
