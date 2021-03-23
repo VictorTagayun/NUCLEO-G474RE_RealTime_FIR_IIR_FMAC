@@ -56,9 +56,7 @@ From previous project [DAC by DMA](https://github.com/VictorTagayun/NUCLEO-G474R
 
 	MySine2000[cntr];
 	
-	```
 	![1kHz signal](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/waveforms%26photos/DS1Z_QuickPrint91.jpg)
-	```
 
 	```
 	MySine2000[cntr] += 682;
@@ -113,6 +111,7 @@ From previous project [DAC by DMA](https://github.com/VictorTagayun/NUCLEO-G474R
 
 	![Added all together](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/waveforms%26photos/DS1Z_QuickPrint94.jpg)
 
+	
 ## Step 2 use HRTIM Master to trigger ADC (and use DAC output to display ADC data for testing if triggered) 
 
 
@@ -311,23 +310,64 @@ Insert FMAC in between ADC and DAC output so we can apply FIR filter
 * 1kHz + 10kHz signal (CH1, Yellow) aquired by ADC and sent to DAC (CH2, Cyan). CH4 is ADC sampling points.
 
 ![ADC signal to DAC](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/waveforms%26photos/DS1Z_QuickPrint138.jpg)
-	
+
 * ADC data printed out by MCU and imported to Excel for plotting
 
-![Excel ADC Plot]()
+In line graph
+
+![Excel ADC Plot](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/captured_data%26plot/ADC_input_1k_10k.png)
+
+In Bar graph
+
+![Excel ADC Plot](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/captured_data%26plot/ADC_input_1k_10k-bar.png)
 
 
+From original Coeffs used in [previous FMAC study and analysis](https://github.com/VictorTagayun/NUCLEO-G474RE_FMAC_Study_and_Analysis), the coeffs are [](https://github.com/VictorTagayun/NUCLEO-G474RE_FMAC_Study_and_Analysis/blob/11147f2b98c443c5a76f5257157dd3974421cfb9/NUCLEO-G474RE_FMAC_FIR_PollingToIT/Core/Src/main.c#L57)
+
+	```
+	static int16_t aFilterCoeffB[COEFF_VECTOR_B_SIZE] =
+	{
+			2212,  8848, 13272,  8848,  2212
+	};
+	```
+
+Calculated by MCU and output to DAC 
+
+![]()
+
+Verified in Excel and plotted
+
+In line graph
+
+![]()
+
+In Bar Graph
+
+* Filtering is not good, need to update the coeffs to properly filter it, new Coffs
+
+	```
+	static int16_t aFilterCoeffB[] =
+	{
+		5987,  6832, 7129,  6832,  5987
+	};
+	```
+
+* MCU output to DAC
+
+![](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/waveforms%26photos/DS1Z_QuickPrint143.jpg)	
+	
+* Calculated by Excel
+
+![](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/captured_data%26plot/LPF_output_computed.png)
+
+	
 * Very Low Pass Filter
 
 ![Very Low Pass Filter]()
 
-* Calculated by Excel
 
-![]()
 
-* MCU output to DAC
 
-![]()
 
 * Change gain of 7 in FMAC, that is R = 7, 2^7. Excel Plot.
 
