@@ -10,10 +10,10 @@
 
 ## Project files  
 
-	- NUCLEO-G474RE_2FreqSineGenerator
-	- NUCLEO-G474RE_2FreqSineGenerator_to_ADC_DAC
-	- NUCLEO-G474RE_2FreqSineGenerator_to_ADC_DAC-02
-	- NUCLEO-G474RE_RealTime_FIR_FMAC
+	* NUCLEO-G474RE_2FreqSineGenerator 					= 2 freq, 1kHz + 10kHz, waveform generator by DAC (DMA)
+	* NUCLEO-G474RE_2FreqSineGenerator_to_ADC_DAC		= 2 freq DAC (DMA) to ADC (DMA) to DAC (DMA) 
+	* NUCLEO-G474RE_2FreqSineGenerator_to_ADC_DAC-02	= 2 freq DAC (DMA) to ADC (IT to Callback) to DAC (Inside ADC Callback)
+	* NUCLEO-G474RE_RealTime_FIR_FMAC					= 2 freq DAC (DMA) to ADC (DMA) to FMAC (DMA) to DAC (ADC IT)
 	
 	
 ## Step 1 Generate 2 freq of sinewaves  
@@ -326,10 +326,12 @@ In Bar graph
 
 * From original Coeffs used in [previous FMAC study and analysis](https://github.com/VictorTagayun/NUCLEO-G474RE_FMAC_Study_and_Analysis), the coeffs are [](https://github.com/VictorTagayun/NUCLEO-G474RE_FMAC_Study_and_Analysis/blob/11147f2b98c443c5a76f5257157dd3974421cfb9/NUCLEO-G474RE_FMAC_FIR_PollingToIT/Core/Src/main.c#L57)
 
+	```
 	static int16_t aFilterCoeffB[COEFF_VECTOR_B_SIZE] =
 	{
 			2212,  8848, 13272,  8848,  2212
 	};
+	```
 
 * Calculated by MCU and output to DAC, with GAIN = 0
 
