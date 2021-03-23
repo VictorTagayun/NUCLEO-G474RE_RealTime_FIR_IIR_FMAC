@@ -34,12 +34,13 @@ From previous project [DAC by DMA](https://github.com/VictorTagayun/NUCLEO-G474R
 * TRGO Event = Update event
 * setup in main.c 
 
+	```
 	/*##- Enable TIM peripheral counter ######################################*/
 	if(HAL_OK != HAL_TIM_Base_Start(&htim6))
 	{
 		Error_Handler();
 	}
-
+	```
 
 ### DAC3 for 2 Freq generator using DMA  
 
@@ -55,26 +56,35 @@ From previous project [DAC by DMA](https://github.com/VictorTagayun/NUCLEO-G474R
 
 	MySine2000[cntr];
 	
+	```
 	![1kHz signal](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/waveforms%26photos/DS1Z_QuickPrint91.jpg)
+	```
 
+	```
 	MySine2000[cntr] += 682;
+	```
 	
 	![Add Offset so that 10k signal can be added and will not go negative](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/waveforms%26photos/DS1Z_QuickPrint92.jpg)
 	
+	```
 	MySine200[cntr];
+	```
 	
 	![10Khz Signal](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/waveforms%26photos/DS1Z_QuickPrint93.jpg)
 	
+	```
 	for (uint16_t cntr = 0; cntr < MySine2000_SIZE; cntr++)
 	{
 		MySine2000[cntr] += 682;
 		MySine2000[cntr] += MySine200[cntr % MySine200_SIZE];
 	}
+	```
 	
 	[Added all together](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/waveforms%26photos/DS1Z_QuickPrint94.jpg)
 	
 * setup DAC3 in main.c  
 
+	```
 	/*##- Enable DAC Channel and associated DMA ##############################*/
 	if(HAL_OK != HAL_DAC_Start_DMA(&hdac3, DAC_CHANNEL_1,
 				   (uint32_t*)MySine2000, MySine2000_SIZE, DAC_ALIGN_12B_R))
@@ -82,7 +92,7 @@ From previous project [DAC by DMA](https://github.com/VictorTagayun/NUCLEO-G474R
 		/* Start DMA Error */
 		Error_Handler();
 	}
-
+	```
 
 ### OpAmp6  
 
@@ -90,12 +100,14 @@ From previous project [DAC by DMA](https://github.com/VictorTagayun/NUCLEO-G474R
 * Power Mode = High Speed
 * Setup OpAmp6 in main.c  
 
+	```
 	/*##- Start OPAMP    #####################################################*/
 	/* Enable OPAMP */
 	if(HAL_OK != HAL_OPAMP_Start(&hopamp6))
 	{
 		Error_Handler();
 	}
+	```	
 
 ### check output on PB11 
 
@@ -110,10 +122,12 @@ From previous project [DAC by DMA](https://github.com/VictorTagayun/NUCLEO-G474R
 * ADC trigger1 on Master Period  
 * Setup HRTIM Master in main.c 
 
+	```
 	if(HAL_OK != HAL_HRTIM_WaveformCounterStart(&hhrtim1, HRTIM_TIMERID_MASTER))
 	{
 		Error_Handler();
 	}
+	```
 	
 	
 ### ADC DMA to DAC4 to display ADC data  
@@ -130,6 +144,7 @@ From previous project [DAC by DMA](https://github.com/VictorTagayun/NUCLEO-G474R
 	* Disable ADC1-2 Global IT
 * Add callback for Regular Conversion mode, later will be used for DAC1 output
 
+	```
 	HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 	{
 	  /* Prevent unused argument(s) compilation warning */
@@ -143,9 +158,11 @@ From previous project [DAC by DMA](https://github.com/VictorTagayun/NUCLEO-G474R
 		adc_data = HAL_ADC_GetValue(hadc);
 		HAL_DAC_SetValue(&hdac4, DAC_CHANNEL_1, DAC_ALIGN_12B_R, adc_data);
 	}
+	```
 
 * Calibrate then enable ADC with DMA in main.c 
 
+	```
 	/* Perform an ADC automatic self-calibration and enable ADC */
 	HAL_ADCEx_Calibration_Start(&hadc1, ADC_SINGLE_ENDED);
 	
@@ -155,6 +172,7 @@ From previous project [DAC by DMA](https://github.com/VictorTagayun/NUCLEO-G474R
 		/* Start DMA Error */
 		Error_Handler();
 	}
+	```
 
 
 ### DAC4 for ADC data display   
@@ -164,12 +182,14 @@ From previous project [DAC by DMA](https://github.com/VictorTagayun/NUCLEO-G474R
 * Do not set any Trigger, DAC will not output with this command _HAL_DAC_SetValue_
 * Enable DAC4 in main.c 
 
+	```
 	/*##- Enable DAC Channel ##############################*/
 	if(HAL_OK != HAL_DAC_Start(&hdac4, DAC_CHANNEL_1))
 	{
 		/* Start Error */
 		Error_Handler();
 	}
+	```
 	
 	
 ### OpAmp4  
@@ -178,12 +198,14 @@ From previous project [DAC by DMA](https://github.com/VictorTagayun/NUCLEO-G474R
 * Power Mode = High Speed
 * Setup OpAmp4 in main.c  
 
+	```
 	/*##- Start OPAMP    #####################################################*/
 	/* Enable OPAMP */
 	if(HAL_OK != HAL_OPAMP_Start(&hopamp4))
 	{
 		Error_Handler();
 	}
+	```
 	
 	
 ### check output on PB11 
@@ -201,6 +223,7 @@ Insert FMAC in between ADC and DAC output so we can apply FIR filter
 * include fmac.h
 * add VT_FMAC_init(void)  
 
+	```
 	/*## Configure the FMAC peripheral ###########################################*/
 	sFmacConfig.InputBaseAddress  = INPUT_BUFFER_BASE; 	// COEFF_VECTOR_B_SIZE = COEFFICIENT_BUFFER_SIZE = 5
 	sFmacConfig.InputBufferSize   = INPUT_BUFFER_SIZE; 	// COEFF_VECTOR_B_SIZE (5) + MEMORY_PARAMETER_D1 (1)
@@ -241,9 +264,11 @@ Insert FMAC in between ADC and DAC output so we can apply FIR filter
 		/* Processing Error */
 		Error_Handler();
 	}
+	```
 	  
 * Edit FMAC IT 
 
+	```
 	void FMAC_IRQHandler(void)
 	{
 		/* USER CODE BEGIN FMAC_IRQn 0 */
@@ -260,6 +285,7 @@ Insert FMAC in between ADC and DAC output so we can apply FIR filter
 
 		/* USER CODE END FMAC_IRQn 1 */
 	}
+	```
 	
 	
 ### DAC1 for FMAC data display   
@@ -270,12 +296,14 @@ Insert FMAC in between ADC and DAC output so we can apply FIR filter
 * Do not set any Trigger, DAC will not output with this command _HAL_DAC_SetValue_
 * Enable DAC1 in main.c  
 
+	```
 	/*##- Enable DAC Channel ##############################*/  
 	if(HAL_OK != HAL_DAC_Start(&hdac1, DAC_CHANNEL_1))
 	{
 		/* Start Error */
 		Error_Handler();
 	}
+	```
 	
 	
 ### Test Results, Waveforms and Plot
