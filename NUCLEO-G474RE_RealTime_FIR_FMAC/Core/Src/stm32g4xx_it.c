@@ -261,7 +261,7 @@ void FMAC_IRQHandler(void)
 
   uint32_t tmp;
   tmp = READ_REG(hfmac.Instance->RDATA);
-  tmp = (tmp > 0x00007FFF ? 0 : tmp);
+  // tmp = (tmp > 0x00007FFF ? 0 : tmp);
   HAL_DAC_SetValue(&hdac1, DAC_CHANNEL_1, DAC_ALIGN_12B_R, tmp);
 
   /* USER CODE END FMAC_IRQn 1 */
