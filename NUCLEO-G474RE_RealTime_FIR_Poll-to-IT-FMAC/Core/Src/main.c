@@ -73,24 +73,33 @@ int16_t Fmac_output;
 
 FMAC_FilterConfigTypeDef sFmacConfig;
 
+uint16_t ExpectedCalculatedOutputSize = (uint16_t) 1;
+
 /* Array of filter coefficients B (feed-forward taps) in Q1.15 format */
-//static int16_t aFilterCoeffB[] =
-//{
-//    2212,  8848, 13272,  8848,  2212
-//};
+
+// Old Low Pass Filter
+static int16_t aFilterCoeffB[] =
+{
+    2212,  8848, 13272,  8848,  2212
+};
+
+// Very Low Pass Filter
 //static int16_t aFilterCoeffB[] =
 //{
 //    70,  0, 127,  0,  70
 //};
+
+// Low Pass Filter
 //static int16_t aFilterCoeffB[] =
 //{
 //		5987,  6832, 7129,  6832,  5987
 //};
-static int16_t aFilterCoeffB[] =
-{
-		-2570,  -8318, 21777,  -8318,  -2570
-};
-uint16_t ExpectedCalculatedOutputSize = (uint16_t) 1;
+
+// High Pass Filter
+//static int16_t aFilterCoeffB[] =
+//{
+//		-2570,  -8318, 21777,  -8318,  -2570
+//};
 
 
 
@@ -113,7 +122,7 @@ static void MX_LPUART1_UART_Init(void);
 
 void VT_FMAC_init(void);
 #define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
-void VT_AddNewData_FMAC(void);
+void VT_AppendData_FMAC(void);
 
 /* USER CODE END PFP */
 
@@ -212,7 +221,7 @@ int main(void)
 		Error_Handler();
 	}
 
-	if(HAL_OK != HAL_HRTIM_WaveformCounterStart(&hhrtim1, HRTIM_TIMERID_MASTER))
+	if(HAL_OK != HAL_HRTIM_WaveformCounterStart_IT(&hhrtim1, HRTIM_TIMERID_MASTER))
 	{
 		Error_Handler();
 	}
@@ -223,6 +232,8 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+//	  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
+//	  HAL_Delay(100);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -497,7 +508,7 @@ static void MX_HRTIM1_Init(void)
   pTimerCfg.PreloadEnable = HRTIM_PRELOAD_DISABLED;
   pTimerCfg.UpdateGating = HRTIM_UPDATEGATING_INDEPENDENT;
   pTimerCfg.BurstMode = HRTIM_TIMERBURSTMODE_MAINTAINCLOCK;
-  pTimerCfg.RepetitionUpdate = HRTIM_UPDATEONREPETITION_ENABLED;
+  pTimerCfg.RepetitionUpdate = HRTIM_UPDATEONREPETITION_DISABLED;
   pTimerCfg.ReSyncUpdate = HRTIM_TIMERESYNC_UPDATE_UNCONDITIONAL;
 
   if (HAL_HRTIM_WaveformTimerConfig(&hhrtim1, HRTIM_TIMERINDEX_MASTER, &pTimerCfg) != HAL_OK)
@@ -731,9 +742,42 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
-void VT_AddNewData_FMAC(void)
+//HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
+//{
+//  /* Prevent unused argument(s) compilation warning */
+//  UNUSED(hadc);
+//
+//  /* NOTE : This function should not be modified. When the callback is needed,
+//			function HAL_ADC_ConvCpltCallback must be implemented in the user file.
+//   */
+//
+////	HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_11);
+//	adc_data = HAL_ADC_GetValue(hadc);
+//	HAL_DAC_SetValue(&hdac4, DAC_CHANNEL_1, DAC_ALIGN_12B_R, adc_data);
+////	if (adc_data_cntr < adc_data_array_size)
+////	{
+////		adc_data_array[adc_data_cntr++] = adc_data;
+////		if (adc_data_cntr == adc_data_array_size)
+////		{
+////			if(HAL_OK != HAL_HRTIM_WaveformCounterStop(&hhrtim1, HRTIM_TIMERID_MASTER))
+////			{
+////				Error_Handler();
+////			}
+////
+////			printf("ADC DATA \n");
+////			for (uint16_t Index = 0; Index < adc_data_array_size; Index++)
+////			{
+////				printf("%d %d\n",Index, adc_data_array[Index]);
+////			}
+////		}
+////	}
+//}
+
+void VT_AppendData_FMAC(void)
 {
 	HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_8);
+
+	HAL_DAC_SetValue(&hdac4, DAC_CHANNEL_1, DAC_ALIGN_12B_R, adc_data);
 }
 
 void HAL_FMAC_OutputDataReadyCallback(FMAC_HandleTypeDef *hfmac)
@@ -757,7 +801,7 @@ void VT_FMAC_init(void)
 	  sFmacConfig.pCoeffB           = aFilterCoeffB;		//
 	  sFmacConfig.CoeffBSize        = COEFF_VECTOR_B_SIZE;	// 5
 	  sFmacConfig.Filter            = FMAC_FUNC_CONVO_FIR;  //
-	  sFmacConfig.InputAccess       = FMAC_BUFFER_ACCESS_NONE; /*!< Buffer handled by an external IP (ADC for instance) */
+	  sFmacConfig.InputAccess       = FMAC_BUFFER_ACCESS_POLLING; /*!< Buffer accessed through polling */
 	  sFmacConfig.OutputAccess      = FMAC_BUFFER_ACCESS_IT;// /*!< Buffer accessed through interruptions */
 	  sFmacConfig.Clip              = FMAC_CLIP_ENABLED;	//
 	  sFmacConfig.P                 = COEFF_VECTOR_B_SIZE;	// 5

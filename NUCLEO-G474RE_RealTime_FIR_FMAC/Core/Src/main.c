@@ -76,26 +76,33 @@ int16_t Fmac_output;
 
 FMAC_FilterConfigTypeDef sFmacConfig;
 
+uint16_t ExpectedCalculatedOutputSize = (uint16_t) 1;
+
 /* Array of filter coefficients B (feed-forward taps) in Q1.15 format */
-//static int16_t aFilterCoeffB[] =
-//{
-//    2212,  8848, 13272,  8848,  2212
-//};
+
+// Old Low Pass Filter
+static int16_t aFilterCoeffB[] =
+{
+    2212,  8848, 13272,  8848,  2212
+};
+
+// Very Low Pass Filter
 //static int16_t aFilterCoeffB[] =
 //{
 //    70,  0, 127,  0,  70
 //};
+
+// Low Pass Filter
 //static int16_t aFilterCoeffB[] =
 //{
 //		5987,  6832, 7129,  6832,  5987
 //};
-static int16_t aFilterCoeffB[] =
-{
-		-2570,  -8318, 21777,  -8318,  -2570
-};
-uint16_t ExpectedCalculatedOutputSize = (uint16_t) 1;
 
-
+// High Pass Filter
+//static int16_t aFilterCoeffB[] =
+//{
+//		-2570,  -8318, 21777,  -8318,  -2570
+//};
 
 /* USER CODE END PV */
 

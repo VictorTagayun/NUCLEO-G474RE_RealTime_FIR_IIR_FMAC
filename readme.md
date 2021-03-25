@@ -335,7 +335,7 @@ In Bar graph
 
 * Calculated by MCU and output to DAC, with GAIN = 0
 
-![]()
+![](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/waveforms%26photos/DS1Z_QuickPrint149.jpg)
 
 Verified in Excel and plotted
 

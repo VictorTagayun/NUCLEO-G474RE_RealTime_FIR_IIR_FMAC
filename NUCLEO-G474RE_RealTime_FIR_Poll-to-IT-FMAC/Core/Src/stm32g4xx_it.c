@@ -62,7 +62,8 @@ extern HRTIM_HandleTypeDef hhrtim1;
 /* USER CODE BEGIN EV */
 
 extern DAC_HandleTypeDef hdac1;
-extern void VT_AddNewData_FMAC(void);
+
+extern void VT_AppendData_FMAC(void);
 
 /* USER CODE END EV */
 
@@ -243,8 +244,7 @@ void HRTIM1_Master_IRQHandler(void)
   HAL_HRTIM_IRQHandler(&hhrtim1,HRTIM_TIMERINDEX_MASTER);
   /* USER CODE BEGIN HRTIM1_Master_IRQn 1 */
 
-//  VT_AddNewData_FMAC();
-  HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_8);
+  VT_AppendData_FMAC();
 
   /* USER CODE END HRTIM1_Master_IRQn 1 */
 }
@@ -263,8 +263,7 @@ void FMAC_IRQHandler(void)
 
   uint32_t tmp;
   tmp = READ_REG(hfmac.Instance->RDATA);
-  tmp = (tmp > 0x00007FFF ? 0 : tmp);
-  HAL_DAC_SetValue(&hdac1, DAC_CHANNEL_1, DAC_ALIGN_12B_R, tmp);
+  HAL_DAC_SetValue(&hdac1, DAC_CHANNEL_1, DAC_ALIGN_12B_R, tmp); // for High Pass Filter (tmp + 1000)
 
   /* USER CODE END FMAC_IRQn 1 */
 }
