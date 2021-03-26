@@ -1,5 +1,6 @@
 #include "main.h"
 
+#define Sampling_RATE 		50
 #define Sine12bit_SIZE		32
 #define Sine1k_15k_SIZE		48
 #define MySine_SIZE			256

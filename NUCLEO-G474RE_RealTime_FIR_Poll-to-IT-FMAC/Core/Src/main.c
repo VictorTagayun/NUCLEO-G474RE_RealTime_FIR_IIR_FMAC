@@ -66,22 +66,26 @@ TIM_HandleTypeDef htim6;
 
 /* USER CODE BEGIN PV */
 
-#define adc_data_array_size 600
-uint32_t adc_data, adc_data_cntr, adc_data_array[adc_data_array_size];
+uint32_t CPU_Freq, HR_Master_mul, HRTIM_Master_per, HRTIM_Master_Freq;
+uint32_t TIM6_PSC, TIM6_ARR, TIM6_Freq;
+
+#define sampling_pt_array_size 600
+uint32_t sampling_rate, sampling_pt_cntr, sampling_pt_array[sampling_pt_array_size];
 uint32_t *Fmac_Wdata;
-int16_t Fmac_output;
+int16_t sampling_pt, Fmac_output;
 
 FMAC_FilterConfigTypeDef sFmacConfig;
 
 uint16_t ExpectedCalculatedOutputSize = (uint16_t) 1;
+uint16_t InputSize = (uint16_t) 1;
 
 /* Array of filter coefficients B (feed-forward taps) in Q1.15 format */
 
 // Old Low Pass Filter
-static int16_t aFilterCoeffB[] =
-{
-    2212,  8848, 13272,  8848,  2212
-};
+//static int16_t aFilterCoeffB[] =
+//{
+//    2212,  8848, 13272,  8848,  2212
+//};
 
 // Very Low Pass Filter
 //static int16_t aFilterCoeffB[] =
@@ -90,10 +94,10 @@ static int16_t aFilterCoeffB[] =
 //};
 
 // Low Pass Filter
-//static int16_t aFilterCoeffB[] =
-//{
-//		5987,  6832, 7129,  6832,  5987
-//};
+static int16_t aFilterCoeffB[] =
+{
+		5987,  6832, 7129,  6832,  5987
+};
 
 // High Pass Filter
 //static int16_t aFilterCoeffB[] =
@@ -123,6 +127,7 @@ static void MX_LPUART1_UART_Init(void);
 void VT_FMAC_init(void);
 #define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
 void VT_AppendData_FMAC(void);
+void VT_HRTIM_Master_FreqCalc(void);
 
 /* USER CODE END PFP */
 
@@ -170,6 +175,23 @@ int main(void)
   MX_DAC1_Init();
   MX_LPUART1_UART_Init();
   /* USER CODE BEGIN 2 */
+
+  CPU_Freq = HAL_RCC_GetHCLKFreq();
+
+  VT_HRTIM_Master_FreqCalc();
+
+  TIM6_Freq = CPU_Freq / (TIM6_PSC * TIM6_ARR);
+
+  if ((TIM6_Freq % HRTIM_Master_Freq) != 0)
+  {
+	  Error_Handler();
+  }
+
+  sampling_rate = TIM6_Freq / HRTIM_Master_Freq;
+
+//	HR_TimA_mul = pow(2,(0x00000007 & HRTIM1->sTimerxRegs[HRTIM_TIMERINDEX_TIMER_A].TIMxCR)); // TimA multiplier
+//	HRTIM_TimA_per = HRTIM1->sTimerxRegs[HRTIM_TIMERINDEX_TIMER_A].PERxR;
+//	HRTIM_TimA_Freq = (((uint64_t) CPU_Freq * 32 ) / HR_TimA_mul) / HRTIM_TimA_per;
 
 	for (uint16_t cntr = 0; cntr < MySine2000_SIZE; cntr++)
 	{
@@ -517,6 +539,7 @@ static void MX_HRTIM1_Init(void)
   }
   /* USER CODE BEGIN HRTIM1_Init 2 */
 
+
   /* USER CODE END HRTIM1_Init 2 */
 
 }
@@ -666,6 +689,10 @@ static void MX_TIM6_Init(void)
   }
   /* USER CODE BEGIN TIM6_Init 2 */
 
+  TIM6_PSC = htim6.Init.Prescaler + 1;
+
+  TIM6_ARR = htim6.Init.Period + 1;
+
   /* USER CODE END TIM6_Init 2 */
 
 }
@@ -721,12 +748,6 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(LD2_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : PB1 */
-  GPIO_InitStruct.Pin = GPIO_PIN_1;
-  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
   /*Configure GPIO pins : PC6 PC8 PC11 */
   GPIO_InitStruct.Pin = GPIO_PIN_6|GPIO_PIN_8|GPIO_PIN_11;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -777,7 +798,33 @@ void VT_AppendData_FMAC(void)
 {
 	HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_8);
 
-	HAL_DAC_SetValue(&hdac4, DAC_CHANNEL_1, DAC_ALIGN_12B_R, adc_data);
+//	sampling_pt = MySine2000[(sampling_pt_cntr += sampling_rate) % MySine2000_SIZE]; // sampling_pt_cntr will over flow
+
+	sampling_pt = MySine2000[sampling_pt_cntr = (sampling_pt_cntr + sampling_rate) % MySine2000_SIZE];
+
+	HAL_DAC_SetValue(&hdac4, DAC_CHANNEL_1, DAC_ALIGN_12B_R, sampling_pt);
+
+	/*## Append new data #################################*/
+	// HAL_FMAC_AppendFilterData(FMAC_HandleTypeDef *hfmac, int16_t *pInput, uint16_t *pInputSize)
+	if (HAL_FMAC_AppendFilterData(&hfmac,
+								&sampling_pt,
+								&InputSize) != HAL_OK)
+	{
+		Error_Handler();
+	}
+
+	/*## Poll to write the 2nd part of the input data ##########################*/
+	if (HAL_FMAC_PollFilterData(&hfmac, 100) != HAL_OK)
+	{
+		Error_Handler();
+	}
+}
+
+void VT_HRTIM_Master_FreqCalc(void)
+{
+	HR_Master_mul = pow(2,(0x00000007 & HRTIM1->sMasterRegs.MCR)); // Master Tim multiplier, it is reversed HR_Master_mul = 2^PSC
+	HRTIM_Master_per = HRTIM1->sMasterRegs.MPER;
+	HRTIM_Master_Freq = (((uint64_t) CPU_Freq * 32 ) / HR_Master_mul) / HRTIM_Master_per;
 }
 
 void HAL_FMAC_OutputDataReadyCallback(FMAC_HandleTypeDef *hfmac)
@@ -815,6 +862,14 @@ void VT_FMAC_init(void)
 	  }
 
 	  /*## Preload the input and output buffers ##################################*/
+	  /*
+	  HAL_FMAC_FilterPreload(FMAC_HandleTypeDef *hfmac,
+												int16_t *pInput,
+												uint8_t InputSize,
+												int16_t *pOutput,
+												uint8_t OutputSize)
+	  */
+	  // Null means, will not start Calculations until HRTIM IT when append data
 	  if (HAL_FMAC_FilterPreload(&hfmac, NULL, INPUT_BUFFER_SIZE, NULL, 0) != HAL_OK)
 	  {
 	    /* Configuration Error */
@@ -853,7 +908,6 @@ void Error_Handler(void)
   while (1)
   {
 	  HAL_GPIO_TogglePin(GPIOA, GPIO_PIN_5);
-	  HAL_Delay(200);
   }
   /* USER CODE END Error_Handler_Debug */
 }

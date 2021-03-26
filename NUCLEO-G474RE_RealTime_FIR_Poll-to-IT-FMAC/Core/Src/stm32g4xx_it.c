@@ -259,7 +259,7 @@ void FMAC_IRQHandler(void)
   /* USER CODE END FMAC_IRQn 0 */
   /* USER CODE BEGIN FMAC_IRQn 1 */
 
-  HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_8);
+  HAL_GPIO_TogglePin(GPIOC, GPIO_PIN_11);
 
   uint32_t tmp;
   tmp = READ_REG(hfmac.Instance->RDATA);
