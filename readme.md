@@ -17,7 +17,7 @@ Channel 4 (Blue) 	= 50kHz ADC Sampling point (FMAC Interrupt)
 
 -  1.) Generate 2 freq of sinewaves, one low freq. like 1kHz and high freq like 10-20kHz. These signals will be fed to FIR filter and will be applied a LPF (low pass filter) and HPF (high pass filter)  
 -  2.) Trigger the ADC and display the ADC data by DAC  
-- 3A.) Trigger the ADC and feed to FIR filter (FMAC) by DMA and apply either LPF and HPF and send the data out to DAC  
+- 3A.) Trigger the ADC and feed to FIR filter (FMAC) by DMA and apply either LPF and HPF and send the filtered data out to DAC  
 - 3B.) Feed data to FMAC manually (Polling), this is useful if data is not coming from ADC but from other devices like accelerometer, vibrations, gyro etc.   
 
 ## Project files  
