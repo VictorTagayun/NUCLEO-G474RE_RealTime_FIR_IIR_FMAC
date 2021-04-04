@@ -2,7 +2,7 @@
 
 ## Target Block diagram  
 
-![]()
+![Block Diagram](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/waveforms%26photos/BlockDiagram01.png)
 
 ## Step process  
 
@@ -16,7 +16,7 @@
 	* NUCLEO-G474RE_2FreqSineGenerator_to_ADC_DAC		= 2 freq DAC (DMA) to ADC (DMA) to DAC (DMA) 
 	* NUCLEO-G474RE_2FreqSineGenerator_to_ADC_DAC-02	= 2 freq DAC (DMA) to ADC (IT to Callback) to DAC (Inside ADC Callback)
 	* NUCLEO-G474RE_RealTime_FIR_FMAC			= 2 freq DAC (DMA) to ADC (DMA) to FMAC (DMA) to DAC (ADC IT)
-	* NUCLEO-G474RE_RealTime_FIR_Poll-to-IT-FMAC			= 2 freq DAC (DMA) to ADC (DMA) to Polling (Append data) FMAC to DAC (ADC IT)
+	* NUCLEO-G474RE_RealTime_FIR_Poll-to-IT-FMAC		= 2 freq DAC (DMA) to ADC (DMA) to Polling (Append data) FMAC to DAC (ADC IT)
 	
 	
 ## Step 1 Generate 2 freq of sinewaves  
