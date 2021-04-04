@@ -8,7 +8,7 @@ IIR Filter is still a work in progress.
 
 ![Block Diagram](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/waveforms%26photos/BlockDiagram01.png)   
 
-Channel 1 (Yellow) 	= 1kHz + 10kHz (2MHZ / 2MSPS) DAC signal  
+Channel 1 (Yellow) 	= 1kHz + 10kHz (2MHZ / 2MSPS) DAC signalm and fed back to the ADC pin of the MCU by shorting wire  
 Channel 2 (Cyan) 	= ADC captured value sent to DAC (50ksps, kilosamples per sec)  
 Channel 3 (Pink) 	= Low / High Pass FIR / IIR filter output from FMAC   
 Channel 4 (Blue) 	= 50kHz ADC Sampling point (FMAC Interrupt)   
