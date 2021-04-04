@@ -2,6 +2,8 @@
 
 ## Target Block diagram  
 
+![]()
+
 ## Step process  
 
 	1. Generate 2 freq of sinewaves, one low freq. like 1kHz and high freq like 10-20kHz. These signals will be fed to FIR filter and will be applied a LPF (low pass filter) and HPF (high pass filter)
@@ -14,6 +16,7 @@
 	* NUCLEO-G474RE_2FreqSineGenerator_to_ADC_DAC		= 2 freq DAC (DMA) to ADC (DMA) to DAC (DMA) 
 	* NUCLEO-G474RE_2FreqSineGenerator_to_ADC_DAC-02	= 2 freq DAC (DMA) to ADC (IT to Callback) to DAC (Inside ADC Callback)
 	* NUCLEO-G474RE_RealTime_FIR_FMAC			= 2 freq DAC (DMA) to ADC (DMA) to FMAC (DMA) to DAC (ADC IT)
+	* NUCLEO-G474RE_RealTime_FIR_Poll-to-IT-FMAC			= 2 freq DAC (DMA) to ADC (DMA) to Polling (Append data) FMAC to DAC (ADC IT)
 	
 	
 ## Step 1 Generate 2 freq of sinewaves  
