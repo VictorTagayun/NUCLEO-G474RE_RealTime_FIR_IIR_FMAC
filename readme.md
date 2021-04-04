@@ -4,7 +4,7 @@ Test Realtime FIR/IIR (Low and High) Filter using FMAC (Filter Math ACCcelerator
 IIR Filter is still a work in progress.  
 
 
-## Target Block diagram  
+## Block diagram  
 
 ![Block Diagram](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/waveforms%26photos/BlockDiagram01.png)   
 
