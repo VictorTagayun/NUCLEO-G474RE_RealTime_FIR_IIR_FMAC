@@ -1,6 +1,7 @@
 # "Real Time" FIR / IIR Filter processing of ADC data. Low Pass and High Pass Filtering using FMAC  
 
-Test Realtime FIR/IIR (Low and High) Filter using FMAC (Filter Math ACCcelerator). The FMAC unit is built around a fixed point multiplier and accumulator (MAC).  
+Test Realtime FIR/IIR (Low and High) Filter using FMAC (Filter Math ACCcelerator). The FMAC unit is built around a fixed point multiplier and accumulator (MAC).   
+IIR Filter is still a work in progress.  
 
 
 ## Target Block diagram  
@@ -8,7 +9,7 @@ Test Realtime FIR/IIR (Low and High) Filter using FMAC (Filter Math ACCcelerator
 ![Block Diagram](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/waveforms%26photos/BlockDiagram01.png)   
 
 Channel 1 (Yellow) 	= 1kHz + 10kHz (2MHZ / 2MSPS) DAC signal  
-Channel 2 (Cyan) 	= ADC value sent to DAC (50ksps, kilosamples per sec)  
+Channel 2 (Cyan) 	= ADC captured value sent to DAC (50ksps, kilosamples per sec)  
 Channel 3 (Pink) 	= Low / High Pass FIR / IIR filter output from FMAC   
 Channel 4 (Blue) 	= 50kHz ADC Sampling point (FMAC Interrupt)   
 
@@ -16,7 +17,8 @@ Channel 4 (Blue) 	= 50kHz ADC Sampling point (FMAC Interrupt)
 
 	1. Generate 2 freq of sinewaves, one low freq. like 1kHz and high freq like 10-20kHz. These signals will be fed to FIR filter and will be applied a LPF (low pass filter) and HPF (high pass filter)
 	2. Trigger the ADC and display the ADC data by DAC
-	3. Trigger the ADC and feed to FIR filter (by FMAC) and apply either LPF and HPF and send the data out to DAC
+	3A. Trigger the ADC and feed to FIR filter (by FMAC) and apply either LPF and HPF and send the data out to DAC  
+	3B. Feed data to FMAC manually (Polling), this is useful if data is not coming from ADC but from other devices like accelerometer, vibrations, gyro etc. 
 
 ## Project files  
 
