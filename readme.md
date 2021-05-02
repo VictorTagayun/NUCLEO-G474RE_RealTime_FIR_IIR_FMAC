@@ -22,11 +22,11 @@ Channel 4 (Blue) 	= 50kHz ADC Sampling point (FMAC Interrupt)
 
 ## Project files  
 
-	* NUCLEO-G474RE_2FreqSineGenerator 			= 2 freq, 1kHz + 10kHz, waveform generator by DAC (DMA)
-	* NUCLEO-G474RE_2FreqSineGenerator_to_ADC_DAC		= 2 freq DAC (DMA) to ADC (DMA) to DAC (DMA) 
-	* NUCLEO-G474RE_2FreqSineGenerator_to_ADC_DAC-02	= 2 freq DAC (DMA) to ADC (IT to Callback) to DAC (Inside ADC Callback)
-	* NUCLEO-G474RE_RealTime_FIR_FMAC			= 2 freq DAC (DMA) to ADC (DMA) to FMAC (DMA) to DAC (ADC IT)
-	* NUCLEO-G474RE_RealTime_FIR_Poll-to-IT-FMAC		= 2 freq DAC (DMA) to ADC (DMA) to Polling (Append data) FMAC to DAC (ADC IT)
+	* NUCLEO-G474RE_2FreqSineGenerator 			= (Step process 1)  2 freq, 1kHz + 10kHz, waveform generator by DAC (DMA)
+	* NUCLEO-G474RE_2FreqSineGenerator_to_ADC_DAC		= (Step process 2)  2 freq DAC (DMA) to ADC (DMA) to DAC (DMA) 
+	* NUCLEO-G474RE_2FreqSineGenerator_to_ADC_DAC-02	= (Step process 2)  2 freq DAC (DMA) to ADC (IT to Callback) to DAC (Inside ADC Callback)
+	* NUCLEO-G474RE_RealTime_FIR_FMAC			= (Step process 3A) 2 freq DAC (DMA) to ADC (DMA) to FMAC (DMA) to DAC (ADC IT)
+	* NUCLEO-G474RE_RealTime_FIR_Poll-to-IT-FMAC		= (Step process 3B) 2 freq DAC (DMA) to Simulated ADC (TIM6) to Polling (Append data) FMAC to DAC (ADC IT)
 	
 	
 ## Step 1 Generate 2 freq of sinewaves  
