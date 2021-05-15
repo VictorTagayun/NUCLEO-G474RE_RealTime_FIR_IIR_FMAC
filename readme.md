@@ -69,19 +69,19 @@ From previous project [DAC by DMA](https://github.com/VictorTagayun/NUCLEO-G474R
 
 	MySine2000[cntr];
 	
-	![1kHz signal](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/waveforms%26photos/DS1Z_QuickPrint91.jpg)
+	![1kHz signal](https://raw.githubusercontent.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/main/waveforms%26photos/DS1Z_QuickPrint91.jpg)
 
 	```
 	MySine2000[cntr] += 682;
 	```
 	
-	![Add Offset so that 10k signal can be added and will not go negative](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/waveforms%26photos/DS1Z_QuickPrint92.jpg)
+	![Add Offset so that 10k signal can be added and will not go negative](https://raw.githubusercontent.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/main/waveforms%26photos/DS1Z_QuickPrint92.jpg)
 	
 	```
 	MySine200[cntr];
 	```
 	
-	![10Khz Signal](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/waveforms%26photos/DS1Z_QuickPrint93.jpg)
+	![10Khz Signal](https://raw.githubusercontent.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/main/waveforms%26photos/DS1Z_QuickPrint93.jpg)
 	
 	```
 	for (uint16_t cntr = 0; cntr < MySine2000_SIZE; cntr++)
@@ -91,7 +91,7 @@ From previous project [DAC by DMA](https://github.com/VictorTagayun/NUCLEO-G474R
 	}
 	```
 	
-	![Added all together](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/waveforms%26photos/DS1Z_QuickPrint94.jpg)
+	![Added all together](https://raw.githubusercontent.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/main/waveforms%26photos/DS1Z_QuickPrint94.jpg)
 	
 * setup DAC3 in main.c  
 
@@ -122,7 +122,7 @@ From previous project [DAC by DMA](https://github.com/VictorTagayun/NUCLEO-G474R
 
 ### check output on PB11
 
-![Added all together](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/waveforms%26photos/DS1Z_QuickPrint94.jpg)
+![Added all together](https://raw.githubusercontent.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/main/waveforms%26photos/DS1Z_QuickPrint94.jpg)
 
 	
 ## Step 2 use HRTIM Master to trigger ADC (and use DAC output to display ADC data for testing if triggered) 
@@ -222,7 +222,7 @@ From previous project [DAC by DMA](https://github.com/VictorTagayun/NUCLEO-G474R
 	
 ### check output on PB12
 
-![](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/waveforms%26photos/DS1Z_QuickPrint137.jpg)
+![](https://raw.githubusercontent.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/main/waveforms%26photos/DS1Z_QuickPrint137.jpg)
 
 
 ## Step 3 Feed ADC data to FMAC for FIR
@@ -324,7 +324,7 @@ Insert FMAC in between ADC and DAC output so we can apply FIR filter
 
 * 1kHz + 10kHz signal (CH1, Yellow) aquired by ADC and sent to DAC (CH2, Cyan). CH4 is ADC sampling points.
 
-![ADC signal to DAC](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/waveforms%26photos/DS1Z_QuickPrint138.jpg)
+![ADC signal to DAC](https://raw.githubusercontent.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/main/waveforms%26photos/DS1Z_QuickPrint138.jpg)
 
 * ADC data printed out by MCU and imported to Excel for plotting
 
@@ -334,7 +334,7 @@ In line graph
 
 In Bar graph
 
-![Excel ADC Plot](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/captured_data%26plot/ADC_input_1k_10k-bar.png)
+![Excel ADC Plot](https://raw.githubusercontent.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/main/captured_data%26plot/ADC_input_1k_10k-bar.png)
 
 
 * From original Coeffs used in [previous FMAC study and analysis](https://github.com/VictorTagayun/NUCLEO-G474RE_FMAC_Study_and_Analysis), the coeffs are [](https://github.com/VictorTagayun/NUCLEO-G474RE_FMAC_Study_and_Analysis/blob/11147f2b98c443c5a76f5257157dd3974421cfb9/NUCLEO-G474RE_FMAC_FIR_PollingToIT/Core/Src/main.c#L57)
@@ -348,17 +348,17 @@ In Bar graph
 
 * Calculated by MCU and output to DAC, with GAIN = 0
 
-![](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/waveforms%26photos/DS1Z_QuickPrint149.jpg)
+![](https://raw.githubusercontent.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/main/waveforms%26photos/DS1Z_QuickPrint149.jpg)
 
 Verified in Excel and plotted
 
 In line graph
 
-![](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/captured_data%26plot/origLPF_output_computed.png)
+![](https://raw.githubusercontent.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/main/captured_data%26plot/origLPF_output_computed.png)
 
 In Bar Graph
 
-![](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/captured_data%26plot/origLPF_output_computed-bar.png)
+![](https://raw.githubusercontent.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/main/captured_data%26plot/origLPF_output_computed-bar.png)
 
 * Filtering is not good, need to update the coeffs to properly filter it, new Coffs
 
@@ -371,11 +371,11 @@ In Bar Graph
 
 * MCU output to DAC, with GAIN = 0
 
-![](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/waveforms%26photos/DS1Z_QuickPrint143.jpg)	
+![](https://raw.githubusercontent.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/main/waveforms%26photos/DS1Z_QuickPrint143.jpg)	
 	
 * Calculated by Excel
 
-![](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/captured_data%26plot/LPF_output_computed.png)
+![](https://raw.githubusercontent.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/main/captured_data%26plot/LPF_output_computed.png)
 
 	
 * Very Low Pass Filter Coeffs
@@ -389,19 +389,19 @@ In Bar Graph
 
 * MCU output to DAC, with GAIN = 0
 
-![Very Low Pass Filter](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/waveforms%26photos/DS1Z_QuickPrint140.jpg)
+![Very Low Pass Filter](https://raw.githubusercontent.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/main/waveforms%26photos/DS1Z_QuickPrint140.jpg)
 
 * Calculated by Excel
 
-![](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/captured_data%26plot/VLPF_output_computed-G%3D0.png)
+![](https://raw.githubusercontent.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/main/captured_data%26plot/VLPF_output_computed-G%3D0.png)
 
 * Change gain of 7 in FMAC, that is R = 7, 2^7 = 128. Excel Plot.
 
-![](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/captured_data%26plot/VLPF_output_computed-G%3D7.png)
+![](https://raw.githubusercontent.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/main/captured_data%26plot/VLPF_output_computed-G%3D7.png)
 
 * MCU output
 
-![](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/waveforms%26photos/DS1Z_QuickPrint139.jpg)
+![](https://raw.githubusercontent.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/main/waveforms%26photos/DS1Z_QuickPrint139.jpg)
 
 
 * High Pass filter coeffs
@@ -421,11 +421,11 @@ In Bar Graph
 
 ![](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/captured_data%26plot/HPF_output_computed_offset-bar.png)
 
-![](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/captured_data%26plot/HPF_output_computed_offset-bar-02.png)
+![](https://raw.githubusercontent.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/main/captured_data%26plot/HPF_output_computed_offset-bar-02.png)
 
 * MCU DAC output plus offset
 
-![](https://github.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/blob/main/waveforms%26photos/DS1Z_QuickPrint145.jpg)
+![](https://raw.githubusercontent.com/VictorTagayun/NUCLEO-G474RE_RealTime_FIR_IIR_FMAC/main/waveforms%26photos/DS1Z_QuickPrint145.jpg)
 
 	
 ### Other References :
