@@ -434,6 +434,7 @@ In Bar Graph
 
 [Use of FMAC for FIR Low Pass Filter](https://github.com/VictorTagayun/NUCLEO-G474RE_FMAC_Study_and_Analysis)
 
+[IIR Filter, for future use](https://www.earlevel.com/main/2021/09/02/biquad-calculator-v3/)
 
 ### Social Media
 
