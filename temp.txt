@@ -1,6 +1,0 @@
-Use Simple RC Low Pass filter to test your feedback circuit if it is working properly before using REAL switching circuits.
-
-1. Use PI/PID for feedback control
-2. Use FMAC (Filter Math ACcelerator) as 3p3z for feedback control
-
-Softstart, by LOGICAL thinking (no MCU or programming experience required).
