@@ -436,6 +436,8 @@ In Bar Graph
 
 [IIR Filter, for future use](https://www.earlevel.com/main/2021/09/02/biquad-calculator-v3/)
 
+[Online Sine Look Up Table Generator Calculator](https://www.daycounter.com/Calculators/Sine-Generator-Calculator.phtml)
+
 ### Social Media
 
 [LinkedIn](https://www.linkedin.com/posts/victortagayun_stm32-weekendhobbyabrelectronics-funwithelectronics-activity-6779238439905828865-u19j)
